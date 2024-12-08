@@ -1,4 +1,4 @@
-package stark.coderaider.fluentschema;
+package stark.coderaider.fluentschema.goals;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -6,6 +6,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.springframework.util.CollectionUtils;
 
 import javax.tools.*;
 import java.io.File;
@@ -14,14 +15,22 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mojo(name = "analyze-sources", defaultPhase = LifecyclePhase.PROCESS_SOURCES, threadSafe = true, requiresDependencyResolution = org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class AnalyzeSourcesMojo extends AbstractMojo
+@Mojo(name = "generate-schema", defaultPhase = LifecyclePhase.PROCESS_SOURCES, threadSafe = true, requiresDependencyResolution = org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME)
+public class GenerateSchema extends AbstractMojo
 {
+    public static final String DEFAULT_SCHEMA_NAME = "SchemaSnapshot";
+
     @Parameter(defaultValue = "${project.basedir}/src/main/java", readonly = true, required = true)
     private File sourceDirectory;
 
-    @Parameter(property = "targetPackage", required = true)
-    private String targetPackage;
+    @Parameter(property = "entityPackage", required = true)
+    private String entityPackage;
+
+    @Parameter(property = "schemaPackage")
+    private String schemaPackage;
+
+    @Parameter(property = "dataSourceName")
+    private String dataSourceName;
 
     @Parameter(defaultValue = "${project.build.directory}/generated-classes", readonly = true)
     private File outputDirectory;
@@ -29,46 +38,127 @@ public class AnalyzeSourcesMojo extends AbstractMojo
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
+    private List<String> dependencies;
+
     @Override
     public void execute() throws MojoExecutionException
     {
-        if (!sourceDirectory.exists())
+        validateDirectoryParameters();
+        resolveProjectDependencies();
+
+        List<Class<?>> entityClasses = loadEntityClasses();
+        if (CollectionUtils.isEmpty(entityClasses))
         {
-            getLog().warn("Source directory does not exist: " + sourceDirectory);
+            getLog().info("No entity classes found.");
             return;
         }
 
-        getLog().info("Analyzing sources in directory: " + sourceDirectory);
+        String schemaClassName = getSchemaClassName();
+        getLog().info("Schema class name: " + schemaClassName);
+    }
 
-        // Collect .java files in the target package
+    private String getSchemaClassName()
+    {
+        if (schemaPackage == null)
+            schemaPackage = entityPackage.substring(0, entityPackage.lastIndexOf('.')) + ".schemas";
+
+        getLog().info("Schema package: " + schemaPackage);
+        String dataSourceClassName = convertDataSourceNameToClassName();
+        return schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
+    }
+
+    private String convertDataSourceNameToClassName()
+    {
+        String schemaPrefix = "";
+        if (dataSourceName != null)
+        {
+            List<Character> charsToKeep = new ArrayList<>();
+            for (char c : dataSourceName.toCharArray())
+            {
+                if (Character.isLetterOrDigit(c))
+                    charsToKeep.add(c);
+            }
+
+            char[] charsToKeepArray = new char[charsToKeep.size()];
+            for (int i = 0; i < charsToKeepArray.length; i++)
+                charsToKeepArray[i] = charsToKeep.get(i);
+            schemaPrefix = new String(charsToKeepArray);
+
+            schemaPrefix = Character.toUpperCase(schemaPrefix.charAt(0)) + schemaPrefix.substring(1);
+        }
+
+        return schemaPrefix;
+    }
+
+    private List<File> findClassesInPackage(String packageName)
+    {
         List<File> javaFiles = new ArrayList<>();
-        findClassesInPackage(sourceDirectory, targetPackage, javaFiles);
+        findClassesInPackage(sourceDirectory, packageName, javaFiles);
+        return javaFiles;
+    }
 
+    private List<Class<?>> loadEntityClasses() throws MojoExecutionException
+    {
+        getLog().info("Analyzing sources in directory: " + entityPackage);
+
+        List<File> javaFiles = findClassesInPackage(entityPackage);
         if (javaFiles.isEmpty())
         {
-            getLog().warn("No Java files found in the specified package: " + targetPackage);
-            return;
+            getLog().warn("No Java files found in the specified package: " + entityPackage);
+            throw new MojoExecutionException("No Java files found in the specified package: " + entityPackage);
         }
-
-        // Compile Java files
-        if (!outputDirectory.exists() && !outputDirectory.mkdirs())
-            throw new MojoExecutionException("Failed to create output directory: " + outputDirectory);
 
         try
         {
-            List<String> dependencies = resolveProjectDependencies();
-            compileJavaFiles(javaFiles, dependencies);
-
-            // Load classes
-            List<Class<?>> loadedClasses = loadCompiledClasses(javaFiles);
-            getLog().info("Loaded classes:");
-            for (Class<?> clazz : loadedClasses)
-                getLog().info(" - " + clazz.getName());
+            return compileAndLoadClasses(javaFiles);
         }
         catch (Exception e)
         {
             throw new MojoExecutionException("Error during class loading or compilation", e);
         }
+    }
+
+    private List<Class<?>> loadSchemaClasses() throws MojoExecutionException
+    {
+        getLog().info("Analyzing sources in directory: " + schemaPackage);
+
+        List<File> javaFiles = findClassesInPackage(schemaPackage);
+        if (javaFiles.isEmpty())
+            return new ArrayList<>();
+
+        try
+        {
+            return compileAndLoadClasses(javaFiles);
+        }
+        catch (Exception e)
+        {
+            throw new MojoExecutionException("Error during class loading or compilation", e);
+        }
+    }
+
+    private List<Class<?>> compileAndLoadClasses(List<File> javaFiles) throws Exception
+    {
+        compileJavaFiles(javaFiles, dependencies);
+        List<Class<?>> loadedClasses = loadCompiledClasses(javaFiles);
+
+        getLog().info("Loaded classes:");
+        for (Class<?> clazz : loadedClasses)
+            getLog().info(" - " + clazz.getName());
+
+        return loadedClasses;
+    }
+
+    private void validateDirectoryParameters() throws MojoExecutionException
+    {
+        if (!sourceDirectory.exists())
+        {
+            getLog().warn("Source directory does not exist: " + sourceDirectory);
+            throw new MojoExecutionException("Source directory does not exist: " + sourceDirectory);
+        }
+
+        // Compile Java files
+        if (!outputDirectory.exists() && !outputDirectory.mkdirs())
+            throw new MojoExecutionException("Failed to create output directory: " + outputDirectory);
     }
 
     private void findClassesInPackage(File dir, String packageName, List<File> results)
@@ -93,9 +183,9 @@ public class AnalyzeSourcesMojo extends AbstractMojo
         }
     }
 
-    private List<String> resolveProjectDependencies() throws MojoExecutionException
+    private void resolveProjectDependencies() throws MojoExecutionException
     {
-        List<String> dependencies = new ArrayList<>();
+        dependencies = new ArrayList<>();
 
         try
         {
@@ -114,8 +204,6 @@ public class AnalyzeSourcesMojo extends AbstractMojo
         getLog().info("Resolved dependencies for classpath:");
         for (String dependency : dependencies)
             getLog().info(" - " + dependency);
-
-        return dependencies;
     }
 
     private void compileJavaFiles(List<File> javaFiles, List<String> dependencies) throws MojoExecutionException
