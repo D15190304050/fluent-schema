@@ -25,7 +25,7 @@ public class TableSchemaInfoBuilder
         return tableSchemaInfo;
     }
 
-    public ColumnInfo.ColumnInfoBuilder getColumnInfoBuilder()
+    public ColumnInfo.ColumnInfoBuilder column()
     {
         ColumnInfo.ColumnInfoBuilder builder = ColumnInfo.builder();
         columnInfoBuilderList.add(builder);
