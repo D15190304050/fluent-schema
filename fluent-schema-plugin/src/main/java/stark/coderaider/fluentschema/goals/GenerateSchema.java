@@ -45,6 +45,7 @@ public class GenerateSchema extends AbstractMojo
     {
         validateDirectoryParameters();
         resolveProjectDependencies();
+        prepareSchemaPackage();
 
         List<Class<?>> entityClasses = loadEntityClasses();
         if (CollectionUtils.isEmpty(entityClasses))
@@ -53,18 +54,48 @@ public class GenerateSchema extends AbstractMojo
             return;
         }
 
-        String schemaClassName = getSchemaClassName();
-        getLog().info("Schema class name: " + schemaClassName);
+        Class<?> schemaClass = getSchemaClass();
+        if (schemaClass == null)
+            ;
     }
 
-    private String getSchemaClassName()
+    private Class<?> getSchemaClass() throws MojoExecutionException
+    {
+        String schemaClassName = getSchemaClassName();
+        getLog().info("Schema class name: " + schemaClassName);
+
+        List<Class<?>> schemaClasses = loadSchemaClasses();
+        for (Class<?> schemaClass : schemaClasses)
+        {
+            if (schemaClassName.equals(schemaClass.getName()))
+                return schemaClass;
+        }
+
+        return null;
+    }
+
+    private String getSchemaClassName() throws MojoExecutionException
+    {
+        getLog().info("Schema package: " + schemaPackage);
+        String dataSourceClassName = convertDataSourceNameToClassName();
+        return schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
+    }
+
+    private void prepareSchemaPackage() throws MojoExecutionException
     {
         if (schemaPackage == null)
             schemaPackage = entityPackage.substring(0, entityPackage.lastIndexOf('.')) + ".schemas";
 
-        getLog().info("Schema package: " + schemaPackage);
-        String dataSourceClassName = convertDataSourceNameToClassName();
-        return schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
+        String schemaPackagePath = sourceDirectory.getAbsolutePath() + File.separator + schemaPackage.replace('.', File.separatorChar);
+        File schemaPackageDir = new File(schemaPackagePath);
+
+        // Create the directory of the schema package if it does not exist.
+        if (!schemaPackageDir.exists())
+        {
+            if (!schemaPackageDir.mkdirs())
+                throw new MojoExecutionException("Failed to create output directory: " + schemaPackageDir);
+            getLog().info("Schema " + schemaPackage + " created.");
+        }
     }
 
     private String convertDataSourceNameToClassName()
