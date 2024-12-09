@@ -7,6 +7,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.springframework.util.CollectionUtils;
+import stark.coderaider.fluentschema.commons.NamingConvention;
 
 import javax.tools.*;
 import java.io.File;
@@ -77,7 +78,7 @@ public class GenerateSchema extends AbstractMojo
     private String getSchemaClassName() throws MojoExecutionException
     {
         getLog().info("Schema package: " + schemaPackage);
-        String dataSourceClassName = convertDataSourceNameToClassName();
+        String dataSourceClassName = NamingConvention.convertToClassLikeName(dataSourceName);
         return schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
     }
 
@@ -96,29 +97,6 @@ public class GenerateSchema extends AbstractMojo
                 throw new MojoExecutionException("Failed to create output directory: " + schemaPackageDir);
             getLog().info("Schema " + schemaPackage + " created.");
         }
-    }
-
-    private String convertDataSourceNameToClassName()
-    {
-        String schemaPrefix = "";
-        if (dataSourceName != null)
-        {
-            List<Character> charsToKeep = new ArrayList<>();
-            for (char c : dataSourceName.toCharArray())
-            {
-                if (Character.isLetterOrDigit(c))
-                    charsToKeep.add(c);
-            }
-
-            char[] charsToKeepArray = new char[charsToKeep.size()];
-            for (int i = 0; i < charsToKeepArray.length; i++)
-                charsToKeepArray[i] = charsToKeep.get(i);
-            schemaPrefix = new String(charsToKeepArray);
-
-            schemaPrefix = Character.toUpperCase(schemaPrefix.charAt(0)) + schemaPrefix.substring(1);
-        }
-
-        return schemaPrefix;
     }
 
     private List<File> findClassesInPackage(String packageName)

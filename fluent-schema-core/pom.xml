@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>stark.coderaider</groupId>
-            <artifactId>fluent-schema-annotations</artifactId>
+            <artifactId>fluent-schema-commons</artifactId>
             <version>${parent.version}</version>
         </dependency>
     </dependencies>

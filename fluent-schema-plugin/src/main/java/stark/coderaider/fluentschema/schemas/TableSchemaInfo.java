@@ -8,5 +8,8 @@ import java.util.List;
 public class TableSchemaInfo
 {
     private String tableName;
+    private String comment;
     private List<ColumnInfo> columnInfos;
+    private PrimaryKeyInfo primaryKeyInfo;
+    private List<KeyInfo> keyInfos;
 }

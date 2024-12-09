@@ -14,8 +14,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>fluent-schema-core</module>
-        <module>fluent-schema-annotations</module>
         <module>fluent-schema-plugin</module>
+        <module>fluent-schema-commons</module>
     </modules>
 
     <properties>
@@ -24,5 +24,14 @@
         <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>stark.dataworks</groupId>
+                <artifactId>dataworks-basic</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
