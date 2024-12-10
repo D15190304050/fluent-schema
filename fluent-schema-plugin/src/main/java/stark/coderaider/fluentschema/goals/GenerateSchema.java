@@ -7,7 +7,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.springframework.util.CollectionUtils;
-import stark.coderaider.fluentschema.commons.NamingConvention;
+import stark.coderaider.fluentschema.commons.NamingConverter;
 
 import javax.tools.*;
 import java.io.File;
@@ -78,7 +78,7 @@ public class GenerateSchema extends AbstractMojo
     private String getSchemaClassName() throws MojoExecutionException
     {
         getLog().info("Schema package: " + schemaPackage);
-        String dataSourceClassName = NamingConvention.convertToClassLikeName(dataSourceName);
+        String dataSourceClassName = NamingConverter.toClassLikeName(dataSourceName);
         return schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
     }
 
