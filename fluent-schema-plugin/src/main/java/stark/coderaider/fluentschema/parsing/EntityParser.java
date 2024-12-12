@@ -84,10 +84,10 @@ public class EntityParser
                 String fieldName = field.getName();
                 String fieldTypeName = fieldType.getName();
                 boolean fieldTypeIsPrimitive = fieldType.isPrimitive();
-                ColumnMetadata.ColumnMetadataBuilder columnInfoBuilder = ColumnMetadata.builder();
+                ColumnMetadata.ColumnMetadataBuilder columnMetadataBuilder = ColumnMetadata.builder();
 
                 if (!ACCEPTABLE_TYPE_MAP.containsKey(fieldTypeName))
-                    throw new MojoExecutionException("Unacceptable column type: " + fieldTypeName);
+                    throw new MojoExecutionException("Unacceptable column type: " + fieldTypeName + ", column = " + fieldName + ", class = " + entityClassName);
 
                 // TODO: Make sure we can have combination primary key in the future.
                 // For simplicity, now we assume there is only 1 primary key column.
@@ -108,7 +108,7 @@ public class EntityParser
                         throw new MojoExecutionException(MessageFormat.format("There are more than 1 auto increment columns in table \"{0}\" (class = {1})", tableName, entityClassName));
 
                     hasAutoIncrement = true;
-                    columnInfoBuilder.autoIncrement(autoIncrement.begin(), autoIncrement.increment());
+                    columnMetadataBuilder.autoIncrement(autoIncrement.begin(), autoIncrement.increment());
                 }
 
                 Column column = field.getAnnotation(Column.class);
@@ -116,17 +116,17 @@ public class EntityParser
                 {
                     // Validate column name.
                     String columnName = getAndValidateColumnName(column, fieldName, namingConvention, entityClassName);
-                    columnInfoBuilder.name(columnName);
+                    columnMetadataBuilder.name(columnName);
 
                     String columnType = getAndValidateColumnType(column, fieldTypeName, varcharMaxLength, entityClassName);
-                    columnInfoBuilder.type(columnType);
+                    columnMetadataBuilder.type(columnType);
 
                     boolean nullable = getAndValidateColumnNullable(column, fieldName, fieldTypeName, fieldTypeIsPrimitive, columnIsPrimaryKey, entityClassName);
-                    columnInfoBuilder.nullable(nullable);
+                    columnMetadataBuilder.nullable(nullable);
 
                     // Comment is a string, no validation is needed.
                     // For default value & trigger of update, it can be NULL, a numeric value or a database function, so we leave it for database to validate.
-                    columnInfoBuilder
+                    columnMetadataBuilder
                         .comment(column.comment())
                         .defaultValue(column.defaultValue())
                         .onUpdate(column.onUpdate());
@@ -134,10 +134,12 @@ public class EntityParser
                 else
                 {
                     String columnName = NamingConverter.applyConvention(fieldName, namingConvention);
-                    columnInfoBuilder.name(columnName);
-                    columnInfoBuilder.nullable(!fieldTypeIsPrimitive);
-                    columnInfoBuilder.type(getColumnTypeByFieldType(fieldTypeName, varcharMaxLength));
+                    columnMetadataBuilder.name(columnName);
+                    columnMetadataBuilder.nullable(!fieldTypeIsPrimitive);
+                    columnMetadataBuilder.type(getColumnTypeByFieldType(fieldTypeName, varcharMaxLength));
                 }
+
+
             }
         }
 
@@ -179,7 +181,7 @@ public class EntityParser
         else
         {
             String correctColumnType = ACCEPTABLE_TYPE_MAP.get(fieldTypeName);
-            if (correctColumnType == null || !correctColumnType.equals(columnType))
+            if (!correctColumnType.equals(columnType))
                 throw new MojoExecutionException("Unacceptable column type (type mismatch): " + columnType + " for class " + entityClassName + ".");
         }
 
