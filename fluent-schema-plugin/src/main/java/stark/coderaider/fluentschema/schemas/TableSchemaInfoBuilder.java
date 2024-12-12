@@ -1,14 +1,18 @@
 package stark.coderaider.fluentschema.schemas;
 
+import stark.coderaider.fluentschema.metadata.ColumnMetadata;
+import stark.coderaider.fluentschema.metadata.KeyMetadata;
+import stark.coderaider.fluentschema.metadata.PrimaryKeyMetadata;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class TableSchemaInfoBuilder
 {
     private final String name;
-    private final List<ColumnInfo.ColumnInfoBuilder> columnInfoBuilders;
-    private PrimaryKeyInfo.PrimaryKeyInfoBuilder primaryKeyInfoBuilder;
-    private final List<KeyInfo.KeyInfoBuilder> keyInfoBuilders;
+    private final List<ColumnMetadata.ColumnMetadataBuilder> columnInfoBuilders;
+    private PrimaryKeyMetadata.PrimaryKeyMetadataBuilder primaryKeyInfoBuilder;
+    private final List<KeyMetadata.KeyMetadataBuilder> keyInfoBuilders;
     private String tableComment;
 
     public TableSchemaInfoBuilder(String name)
@@ -25,18 +29,18 @@ public class TableSchemaInfoBuilder
         tableSchemaInfo.setTableName(name);
         tableSchemaInfo.setComment(tableComment);
 
-        List<ColumnInfo> columnInfos = new ArrayList<>();
-        columnInfoBuilders.forEach(x -> columnInfos.add(x.build()));
-        tableSchemaInfo.setColumnInfos(columnInfos);
+        List<ColumnMetadata> columnMetadata = new ArrayList<>();
+        columnInfoBuilders.forEach(x -> columnMetadata.add(x.build()));
+        tableSchemaInfo.setColumnMetadata(columnMetadata);
 
         if (primaryKeyInfoBuilder != null)
-            tableSchemaInfo.setPrimaryKeyInfo(primaryKeyInfoBuilder.build());
+            tableSchemaInfo.setPrimaryKeyMetadata(primaryKeyInfoBuilder.build());
 
         if (!keyInfoBuilders.isEmpty())
         {
-            List<KeyInfo> keyInfos = new ArrayList<>();
-            keyInfoBuilders.forEach(x -> keyInfos.add(x.build()));
-            tableSchemaInfo.setKeyInfos(keyInfos);
+            List<KeyMetadata> keyMetadata = new ArrayList<>();
+            keyInfoBuilders.forEach(x -> keyMetadata.add(x.build()));
+            tableSchemaInfo.setKeyMetadata(keyMetadata);
         }
 
         return tableSchemaInfo;
@@ -47,22 +51,22 @@ public class TableSchemaInfoBuilder
         tableComment = comment;
     }
 
-    public ColumnInfo.ColumnInfoBuilder column()
+    public ColumnMetadata.ColumnMetadataBuilder column()
     {
-        ColumnInfo.ColumnInfoBuilder builder = ColumnInfo.builder();
+        ColumnMetadata.ColumnMetadataBuilder builder = ColumnMetadata.builder();
         columnInfoBuilders.add(builder);
         return builder;
     }
 
-    public PrimaryKeyInfo.PrimaryKeyInfoBuilder primaryKey()
+    public PrimaryKeyMetadata.PrimaryKeyMetadataBuilder primaryKey()
     {
-        primaryKeyInfoBuilder = PrimaryKeyInfo.builder();
+        primaryKeyInfoBuilder = PrimaryKeyMetadata.builder();
         return primaryKeyInfoBuilder;
     }
 
-    public KeyInfo.KeyInfoBuilder key()
+    public KeyMetadata.KeyMetadataBuilder key()
     {
-        KeyInfo.KeyInfoBuilder builder = KeyInfo.builder();
+        KeyMetadata.KeyMetadataBuilder builder = KeyMetadata.builder();
         keyInfoBuilders.add(builder);
         return builder;
     }

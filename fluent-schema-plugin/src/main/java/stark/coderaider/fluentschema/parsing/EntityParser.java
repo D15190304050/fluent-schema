@@ -1,14 +1,11 @@
 package stark.coderaider.fluentschema.parsing;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import stark.coderaider.fluentschema.annotations.AutoIncrement;
-import stark.coderaider.fluentschema.annotations.Column;
-import stark.coderaider.fluentschema.annotations.NotMapped;
-import stark.coderaider.fluentschema.annotations.Table;
+import stark.coderaider.fluentschema.annotations.*;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.metadata.TableMetadata;
-import stark.coderaider.fluentschema.schemas.ColumnInfo;
+import stark.coderaider.fluentschema.metadata.ColumnMetadata;
 import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 import stark.dataworks.basic.beans.FieldExtractor;
 
@@ -16,6 +13,8 @@ import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EntityParser
 {
@@ -24,10 +23,15 @@ public class EntityParser
 
     public static final String STRING_TYPE = "java.lang.String";
     public static final String INNODB = "InnoDB";
+    public static final String VARCHAR_PATTERN_STRING = "^VARCHAR\\([1-9]\\d*\\)$";
+    public static final String VARCHAR_TYPE_PREFIX = "VARCHAR(";
+    public static final Pattern VARCHAR_PATTERN;
     private static final HashMap<String, String> ACCEPTABLE_TYPE_MAP;
 
     static
     {
+        VARCHAR_PATTERN = Pattern.compile(VARCHAR_PATTERN_STRING);
+
         ACCEPTABLE_TYPE_MAP = new HashMap<>();
 
         // region Primitives.
@@ -68,6 +72,7 @@ public class EntityParser
         int varcharMaxLength = isInnoDb ? 32767 : 65535;
 
         boolean hasAutoIncrement = false;
+        boolean hasPrimaryKey = false;
 
         List<Field> fields = FieldExtractor.getAllFields(entityClass);
         for (Field field : fields)
@@ -76,7 +81,25 @@ public class EntityParser
             if (notMapped != null)
             {
                 Class<?> fieldType = field.getType();
-                ColumnInfo.ColumnInfoBuilder columnInfoBuilder = ColumnInfo.builder();
+                String fieldName = field.getName();
+                String fieldTypeName = fieldType.getName();
+                boolean fieldTypeIsPrimitive = fieldType.isPrimitive();
+                ColumnMetadata.ColumnMetadataBuilder columnInfoBuilder = ColumnMetadata.builder();
+
+                if (!ACCEPTABLE_TYPE_MAP.containsKey(fieldTypeName))
+                    throw new MojoExecutionException("Unacceptable column type: " + fieldTypeName);
+
+                // TODO: Make sure we can have combination primary key in the future.
+                // For simplicity, now we assume there is only 1 primary key column.
+                PrimaryKey primaryKey = field.getAnnotation(PrimaryKey.class);
+                boolean columnIsPrimaryKey = primaryKey != null;
+                if (columnIsPrimaryKey)
+                {
+                    if (hasPrimaryKey)
+                        throw new MojoExecutionException(MessageFormat.format("There are more than 1 auto increment columns in table \"{0}\" (class = {1})", tableName, entityClassName));
+
+                    hasPrimaryKey = true;
+                }
 
                 AutoIncrement autoIncrement = field.getAnnotation(AutoIncrement.class);
                 if (autoIncrement != null)
@@ -89,37 +112,104 @@ public class EntityParser
                 }
 
                 Column column = field.getAnnotation(Column.class);
-
                 if (column != null)
                 {
                     // Validate column name.
-                    String columnName = column.name();
-                    String columnClassLikeName = NamingConverter.toClassLikeName(columnName);
-                    if (!columnName.equals(columnClassLikeName))
-                        throw new MojoExecutionException(MessageFormat.format("Invalid column name \"{0}\" for field \"{1}\" in table \"{2}\" (class = {3})", columnName, field.getName(), tableName, entityClassName));
+                    String columnName = getAndValidateColumnName(column, fieldName, namingConvention, entityClassName);
+                    columnInfoBuilder.name(columnName);
 
+                    String columnType = getAndValidateColumnType(column, fieldTypeName, varcharMaxLength, entityClassName);
+                    columnInfoBuilder.type(columnType);
+
+                    boolean nullable = getAndValidateColumnNullable(column, fieldName, fieldTypeName, fieldTypeIsPrimitive, columnIsPrimaryKey, entityClassName);
+                    columnInfoBuilder.nullable(nullable);
+
+                    // Comment is a string, no validation is needed.
+                    // For default value & trigger of update, it can be NULL, a numeric value or a database function, so we leave it for database to validate.
                     columnInfoBuilder
-                        .name(columnName)
-                        .type(column.type())
-                        .nullable(column.nullable())
                         .comment(column.comment())
                         .defaultValue(column.defaultValue())
                         .onUpdate(column.onUpdate());
                 }
                 else
                 {
-                    String fieldName = field.getName();
                     String columnName = NamingConverter.applyConvention(fieldName, namingConvention);
                     columnInfoBuilder.name(columnName);
-                    columnInfoBuilder.nullable(!fieldType.isPrimitive());
-
-                    if (fieldType.getName().equals(STRING_TYPE))
-                        columnInfoBuilder.type("VARCHAR(" + varcharMaxLength + ")");
+                    columnInfoBuilder.nullable(!fieldTypeIsPrimitive);
+                    columnInfoBuilder.type(getColumnTypeByFieldType(fieldTypeName, varcharMaxLength));
                 }
             }
         }
 
         return null;
+    }
+
+    private static boolean getAndValidateColumnNullable(Column column, String fieldName, String fieldTypeName, boolean fieldTypeIsPrimitive, boolean columnIsPrimaryKey, String entityClassName) throws MojoExecutionException
+    {
+        boolean nullable = column.nullable();
+        if (nullable && fieldTypeIsPrimitive && !columnIsPrimaryKey)
+            throw new MojoExecutionException("Type " + fieldTypeName + " cannot be nullable (field = " + fieldName + "), class = (" + entityClassName + ").");
+        return nullable;
+    }
+
+    private static String getAndValidateColumnType(Column column, String fieldTypeName, int varcharMaxLength, String entityClassName) throws MojoExecutionException
+    {
+        String columnType = column.type();
+
+        if (columnType.isEmpty())
+            columnType = getColumnTypeByFieldType(fieldTypeName, varcharMaxLength);
+        else if (fieldTypeName.equals(STRING_TYPE))
+        {
+            Matcher matcher = VARCHAR_PATTERN.matcher(columnType);
+            if (!matcher.matches())
+                throw new MojoExecutionException("Unacceptable column type (type mismatch): " + columnType + " for class " + entityClassName + ".");
+
+            String lengthString = columnType.substring(VARCHAR_TYPE_PREFIX.length(), columnType.length() - 1);
+            try
+            {
+                long length = Long.parseLong(lengthString);
+                if (length < 1 || length > varcharMaxLength)
+                    throw new MojoExecutionException("Unacceptable column type (length exceeded): " + columnType + " for class " + entityClassName + ".");
+            }
+            catch (NumberFormatException e)
+            {
+                throw new MojoExecutionException("Unacceptable column type (error parsing length): " + columnType + " for class " + entityClassName + ".", e);
+            }
+        }
+        else
+        {
+            String correctColumnType = ACCEPTABLE_TYPE_MAP.get(fieldTypeName);
+            if (correctColumnType == null || !correctColumnType.equals(columnType))
+                throw new MojoExecutionException("Unacceptable column type (type mismatch): " + columnType + " for class " + entityClassName + ".");
+        }
+
+        return columnType;
+    }
+
+    private static String getColumnTypeByFieldType(String fieldTypeName, int varcharMaxLength)
+    {
+        if (fieldTypeName.equals(STRING_TYPE))
+            return "VARCHAR(" + varcharMaxLength + ")";
+        else
+            return ACCEPTABLE_TYPE_MAP.get(fieldTypeName);
+    }
+
+    private static String getAndValidateColumnName(Column column, String fieldName, NamingConvention namingConvention, String entityClassName) throws MojoExecutionException
+    {
+        String columnName = column.name();
+
+        try
+        {
+            String convertedColumnName = NamingConverter.applyConvention(columnName, namingConvention);
+            if (!convertedColumnName.equals(columnName))
+                throw new MojoExecutionException(MessageFormat.format("The specified column name does not satisfy the naming convention. Column = \"{0}\", field = \"{1}\", class = \"{2}\"", columnName, fieldName, entityClassName));
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+
+        return columnName;
     }
 
     private static String getTableName(Class<?> entityClass, Table table, NamingConvention namingConvention) throws MojoExecutionException

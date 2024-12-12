@@ -1,6 +1,5 @@
 package stark.coderaider.fluentschema.examples;
 
-import stark.coderaider.fluentschema.schemas.AutoIncrementInfo;
 import stark.coderaider.fluentschema.schemas.SchemaSnapshotBase;
 import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 import stark.dataworks.basic.data.json.JsonSerializer;

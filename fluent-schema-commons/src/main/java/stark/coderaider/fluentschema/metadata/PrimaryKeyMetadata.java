@@ -1,11 +1,11 @@
-package stark.coderaider.fluentschema.schemas;
+package stark.coderaider.fluentschema.metadata;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class PrimaryKeyInfo
+public class PrimaryKeyMetadata
 {
     private String columnName;
 }
