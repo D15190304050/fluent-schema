@@ -1,11 +1,11 @@
 package stark.coderaider.fluentschema.parsing;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import stark.coderaider.fluentschema.annotations.*;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
-import stark.coderaider.fluentschema.metadata.TableMetadata;
-import stark.coderaider.fluentschema.metadata.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.annotations.*;
+import stark.coderaider.fluentschema.commons.metadata.TableMetadata;
+import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
 import stark.coderaider.fluentschema.schemas.TableSchemaMetadata;
 import stark.dataworks.basic.beans.FieldExtractor;
 
@@ -28,6 +28,7 @@ public class EntityParser
     public static final String VARCHAR_TYPE_PREFIX = "VARCHAR(";
     public static final Pattern VARCHAR_PATTERN;
     private static final HashMap<String, String> ACCEPTABLE_TYPE_MAP;
+    public static final List<String> AUTO_INCREMENT_ACCEPTABLE_TYPES;
 
     static
     {
@@ -57,6 +58,11 @@ public class EntityParser
         ACCEPTABLE_TYPE_MAP.put("java.util.Date", "DATETIME");
         ACCEPTABLE_TYPE_MAP.put("java.sql.Date", "DATETIME");
         // endregion
+
+        AUTO_INCREMENT_ACCEPTABLE_TYPES = List.of(
+            "INT",
+            "BIGINT"
+        );
     }
 
     public TableSchemaMetadata parse(Class<?> entityClass) throws MojoExecutionException
@@ -129,6 +135,7 @@ public class EntityParser
                     // Comment is a string, no validation is needed.
                     // For default value & trigger of update, it can be NULL, a numeric value or a database function, so we leave it for database to validate.
                     columnMetadataBuilder
+                        .unique(column.unique())
                         .comment(column.comment())
                         .defaultValue(column.defaultValue())
                         .onUpdate(column.onUpdate());

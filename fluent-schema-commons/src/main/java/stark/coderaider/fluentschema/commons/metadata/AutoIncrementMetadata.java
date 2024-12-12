@@ -1,4 +1,4 @@
-package stark.coderaider.fluentschema.metadata;
+package stark.coderaider.fluentschema.commons.metadata;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

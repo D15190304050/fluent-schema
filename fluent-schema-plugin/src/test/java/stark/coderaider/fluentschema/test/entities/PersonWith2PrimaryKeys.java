@@ -1,8 +1,8 @@
 package stark.coderaider.fluentschema.test.entities;
 
-import stark.coderaider.fluentschema.annotations.AutoIncrement;
-import stark.coderaider.fluentschema.annotations.Column;
-import stark.coderaider.fluentschema.annotations.PrimaryKey;
+import stark.coderaider.fluentschema.commons.annotations.AutoIncrement;
+import stark.coderaider.fluentschema.commons.annotations.Column;
+import stark.coderaider.fluentschema.commons.annotations.PrimaryKey;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package stark.coderaider.fluentschema.metadata;
+package stark.coderaider.fluentschema.commons.metadata;
 
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +10,7 @@ public class ColumnMetadata
     private String name;
     private String type;
     private boolean nullable;
+    private boolean unique;
     private String comment;
     private String defaultValue;
     private String onUpdate;
