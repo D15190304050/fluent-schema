@@ -8,11 +8,11 @@ import stark.coderaider.fluentschema.metadata.PrimaryKeyMetadata;
 import java.util.List;
 
 @Data
-public class TableSchemaInfo
+public class TableSchemaMetadata
 {
-    private String tableName;
+    private String name;
     private String comment;
-    private List<ColumnMetadata> columnMetadata;
-    private PrimaryKeyMetadata primaryKeyMetadata;
-    private List<KeyMetadata> keyMetadata;
+    private List<ColumnMetadata> columnMetadatas;
+    private PrimaryKeyMetadata primaryKeyMetadatas;
+    private List<KeyMetadata> keyMetadatas;
 }

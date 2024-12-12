@@ -23,27 +23,27 @@ public class TableSchemaMetadataBuilder
         tableComment = null;
     }
 
-    public TableSchemaInfo toTableSchemaInfo()
+    public TableSchemaMetadata toTableSchemaInfo()
     {
-        TableSchemaInfo tableSchemaInfo = new TableSchemaInfo();
-        tableSchemaInfo.setTableName(name);
-        tableSchemaInfo.setComment(tableComment);
+        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
+        tableSchemaMetadata.setName(name);
+        tableSchemaMetadata.setComment(tableComment);
 
         List<ColumnMetadata> columnMetadata = new ArrayList<>();
         columnMetadataBuilders.forEach(x -> columnMetadata.add(x.build()));
-        tableSchemaInfo.setColumnMetadata(columnMetadata);
+        tableSchemaMetadata.setColumnMetadatas(columnMetadata);
 
         if (primaryKeyMetadataBuilder != null)
-            tableSchemaInfo.setPrimaryKeyMetadata(primaryKeyMetadataBuilder.build());
+            tableSchemaMetadata.setPrimaryKeyMetadatas(primaryKeyMetadataBuilder.build());
 
         if (!keyMetadataBuilders.isEmpty())
         {
             List<KeyMetadata> keyMetadata = new ArrayList<>();
             keyMetadataBuilders.forEach(x -> keyMetadata.add(x.build()));
-            tableSchemaInfo.setKeyMetadata(keyMetadata);
+            tableSchemaMetadata.setKeyMetadatas(keyMetadata);
         }
 
-        return tableSchemaInfo;
+        return tableSchemaMetadata;
     }
 
     public void comment(String comment)

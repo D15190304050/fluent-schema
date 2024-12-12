@@ -6,11 +6,12 @@ import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.metadata.TableMetadata;
 import stark.coderaider.fluentschema.metadata.ColumnMetadata;
-import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
+import stark.coderaider.fluentschema.schemas.TableSchemaMetadata;
 import stark.dataworks.basic.beans.FieldExtractor;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -58,7 +59,7 @@ public class EntityParser
         // endregion
     }
 
-    public TableSchemaInfo parse(Class<?> entityClass) throws MojoExecutionException
+    public TableSchemaMetadata parse(Class<?> entityClass) throws MojoExecutionException
     {
         String entityClassName = entityClass.getName();
 
@@ -74,11 +75,12 @@ public class EntityParser
         boolean hasAutoIncrement = false;
         boolean hasPrimaryKey = false;
 
+        List<ColumnMetadata> columnMetadatas = new ArrayList<>();
         List<Field> fields = FieldExtractor.getAllFields(entityClass);
         for (Field field : fields)
         {
             NotMapped notMapped = field.getAnnotation(NotMapped.class);
-            if (notMapped != null)
+            if (notMapped == null)
             {
                 Class<?> fieldType = field.getType();
                 String fieldName = field.getName();
@@ -139,11 +141,14 @@ public class EntityParser
                     columnMetadataBuilder.type(getColumnTypeByFieldType(fieldTypeName, varcharMaxLength));
                 }
 
-
+                columnMetadatas.add(columnMetadataBuilder.build());
             }
         }
 
-        return null;
+        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
+        tableSchemaMetadata.setName(tableName);
+        tableSchemaMetadata.setColumnMetadatas(columnMetadatas);
+        return tableSchemaMetadata;
     }
 
     private static boolean getAndValidateColumnNullable(Column column, String fieldName, String fieldTypeName, boolean fieldTypeIsPrimitive, boolean columnIsPrimaryKey, String entityClassName) throws MojoExecutionException
@@ -199,6 +204,8 @@ public class EntityParser
     private static String getAndValidateColumnName(Column column, String fieldName, NamingConvention namingConvention, String entityClassName) throws MojoExecutionException
     {
         String columnName = column.name();
+        if (columnName.isEmpty())
+            columnName = fieldName;
 
         try
         {
@@ -224,7 +231,7 @@ public class EntityParser
             try
             {
                 String tableNameInAnnotation = table.name();
-                String candidateTableNameBeforeConversion = tableNameInAnnotation == null ? entityClass.getSimpleName() : tableNameInAnnotation;
+                String candidateTableNameBeforeConversion = tableNameInAnnotation.isEmpty() ? entityClass.getSimpleName() : tableNameInAnnotation;
                 tableName = NamingConverter.applyConvention(candidateTableNameBeforeConversion, namingConvention);
             }
             catch (IllegalArgumentException e)

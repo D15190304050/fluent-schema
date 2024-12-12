@@ -48,6 +48,12 @@
             <groupId>stark.dataworks</groupId>
             <artifactId>dataworks-basic</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

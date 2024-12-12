@@ -9,18 +9,18 @@ import java.util.function.Consumer;
 @Getter
 public class SchemaBuilder
 {
-    private final List<TableSchemaInfo> tableSchemaInfos;
+    private final List<TableSchemaMetadata> tableSchemaMetadata;
 
     public SchemaBuilder()
     {
-        tableSchemaInfos = new ArrayList<>();
+        tableSchemaMetadata = new ArrayList<>();
     }
 
     public void table(String name, Consumer<TableSchemaMetadataBuilder> consumer)
     {
         TableSchemaMetadataBuilder builder = new TableSchemaMetadataBuilder(name);
         consumer.accept(builder);
-        TableSchemaInfo tableSchemaInfo = builder.toTableSchemaInfo();
-        tableSchemaInfos.add(tableSchemaInfo);
+        TableSchemaMetadata tableSchemaMetadata = builder.toTableSchemaInfo();
+        this.tableSchemaMetadata.add(tableSchemaMetadata);
     }
 }

@@ -13,8 +13,8 @@ public abstract class SchemaSnapshotBase
 
     public abstract void buildSchema();
 
-    public List<TableSchemaInfo> getTableSchemaInfos()
+    public List<TableSchemaMetadata> getTableSchemaInfos()
     {
-        return schemaBuilder.getTableSchemaInfos();
+        return schemaBuilder.getTableSchemaMetadata();
     }
 }
