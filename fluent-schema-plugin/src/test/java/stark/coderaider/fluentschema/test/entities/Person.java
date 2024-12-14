@@ -7,7 +7,7 @@ import stark.coderaider.fluentschema.commons.annotations.Table;
 
 import java.util.Date;
 
-@Table
+@Table(comment = "Table of basic information of persons.")
 public class Person
 {
     @PrimaryKey

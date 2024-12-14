@@ -12,6 +12,7 @@ public class TableSchemaMetadata
 {
     private String name;
     private String comment;
+    private String engine;
     private List<ColumnMetadata> columnMetadatas;
     private PrimaryKeyMetadata primaryKeyMetadata;
     private List<KeyMetadata> keyMetadatas;

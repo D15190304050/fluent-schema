@@ -69,7 +69,6 @@ public class EntityParser
 
     public TableSchemaMetadata parse(Class<?> entityClass) throws MojoExecutionException
     {
-
         String entityClassName = entityClass.getName();
 
         Table table = entityClass.getAnnotation(Table.class);
@@ -173,6 +172,8 @@ public class EntityParser
 
         TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
         tableSchemaMetadata.setName(tableName);
+        tableSchemaMetadata.setComment(tableMetadata.getComment());
+        tableSchemaMetadata.setEngine(tableMetadata.getEngine());
         tableSchemaMetadata.setColumnMetadatas(columnMetadatas);
         tableSchemaMetadata.setPrimaryKeyMetadata(primaryKeyMetadata);
         return tableSchemaMetadata;
