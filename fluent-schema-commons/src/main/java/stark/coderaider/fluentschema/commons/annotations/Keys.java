@@ -4,10 +4,8 @@ import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Target({ElementType.FIELD})
-@Repeatable(Keys.class)
-public @interface Key
+@Target(ElementType.FIELD)
+public @interface Keys
 {
-    String name();
-    int order() default 0;
+    Key[] value();
 }

@@ -1,11 +1,12 @@
 package stark.coderaider.fluentschema.test.entities;
 
+import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.annotations.*;
 
 import java.util.Date;
 
-@Table(comment = "Table of basic information of persons.")
-public class Person
+@Table(namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
+public class PersonWithCombinationKey
 {
     @PrimaryKey
     @AutoIncrement
@@ -14,6 +15,9 @@ public class Person
     @Key(name = "idx_name")
     @Column(type = "VARCHAR(200)")
     private String name;
+
+    @Key(name = "idx_name", order = 1)
+    private String birthPlace;
 
     private String gender;
 

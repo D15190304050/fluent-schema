@@ -81,4 +81,36 @@ public class EntityParserTest
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void parsePersonWith2Keys()
+    {
+        EntityParser parser = new EntityParser();
+
+        try
+        {
+            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWith2Keys.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaInfo));
+        }
+        catch (MojoExecutionException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void parsePersonWithCombinationKey()
+    {
+        EntityParser parser = new EntityParser();
+
+        try
+        {
+            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWithCombinationKey.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaInfo));
+        }
+        catch (MojoExecutionException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

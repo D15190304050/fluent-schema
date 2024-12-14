@@ -4,18 +4,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.commons.annotations.*;
-import stark.coderaider.fluentschema.commons.metadata.AutoIncrementMetadata;
-import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
-import stark.coderaider.fluentschema.commons.metadata.TableMetadata;
-import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.metadata.*;
+import stark.coderaider.fluentschema.schemas.KeyBuilderInfo;
 import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 import stark.dataworks.basic.beans.FieldExtractor;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +80,7 @@ public class EntityParser
         boolean hasPrimaryKey = false;
 
         List<ColumnMetadata> columnMetadatas = new ArrayList<>();
+        HashMap<String, List<KeyBuilderInfo>> keyMetadataMap = new HashMap<>();
         PrimaryKeyMetadata primaryKeyMetadata = null;
         List<Field> fields = FieldExtractor.getAllFields(entityClass);
         for (Field field : fields)
@@ -151,6 +148,7 @@ public class EntityParser
                     primaryKeyMetadata = primaryKeyMetadataBuilder.columnName(columnMetadata.getName()).build();
                 }
 
+                // Encapsulate into a method.
                 AutoIncrement autoIncrement = field.getAnnotation(AutoIncrement.class);
                 if (autoIncrement != null)
                 {
@@ -167,6 +165,30 @@ public class EntityParser
                     hasAutoIncrement = true;
                     columnMetadata.setAutoIncrement(new AutoIncrementMetadata(autoIncrement.begin(), autoIncrement.increment()));
                 }
+
+                // Keys.
+//                Keys keys = field.getAnnotation(Keys.class);
+//                if (keys != null && keys.value() != null)
+                Key[] keys = field.getAnnotationsByType(Key.class);
+                if (keys.length > 0)
+                {
+                    for (Key key : keys)
+                    {
+                        String name = key.name();
+                        if (name.isEmpty())
+                            throw new MojoExecutionException("Name of an index cannot be empty. Field = " + field.getName() + ", (class = " + entityClassName + ").");
+
+                        if (!keyMetadataMap.containsKey(name))
+                            keyMetadataMap.put(name, new ArrayList<>());
+
+                        KeyBuilderInfo keyBuilderInfo = new KeyBuilderInfo();
+                        keyBuilderInfo.setKey(name);
+                        keyBuilderInfo.setColumn(columnMetadata);
+                        keyBuilderInfo.setOrder(key.order());
+                        keyBuilderInfo.setField(field);
+                        keyMetadataMap.get(name).add(keyBuilderInfo);
+                    }
+                }
             }
         }
 
@@ -176,7 +198,45 @@ public class EntityParser
         tableSchemaInfo.setEngine(tableMetadata.getEngine());
         tableSchemaInfo.setColumnMetadatas(columnMetadatas);
         tableSchemaInfo.setPrimaryKeyMetadata(primaryKeyMetadata);
+        tableSchemaInfo.setKeyMetadatas(toKeyMetadatas(entityClass, keyMetadataMap));
         return tableSchemaInfo;
+    }
+
+    private static List<KeyMetadata> toKeyMetadatas(Class<?> entityClass, HashMap<String, List<KeyBuilderInfo>> keyMetadataMap) throws MojoExecutionException
+    {
+        List<KeyMetadata> keyMetadatas = new ArrayList<>();
+
+        for (String keyName : keyMetadataMap.keySet())
+        {
+            List<KeyBuilderInfo> keyBuilderInfos = keyMetadataMap.get(keyName);
+            validateKeyOrders(entityClass, keyBuilderInfos);
+
+            keyBuilderInfos.sort(Comparator.comparingInt(KeyBuilderInfo::getOrder));
+            List<String> columns = keyBuilderInfos.stream().map(x -> x.getColumn().getName()).toList();
+
+            KeyMetadata keyMetadata = KeyMetadata.builder()
+                .name(keyName)
+                .columns(columns)
+                .build();
+
+            keyMetadatas.add(keyMetadata);
+        }
+
+        return keyMetadatas;
+    }
+
+    private static void validateKeyOrders(Class<?> entityClass, List<KeyBuilderInfo> keyBuilderInfos) throws MojoExecutionException
+    {
+        HashSet<Integer> keyIndexOrders = new HashSet<>();
+
+        for (KeyBuilderInfo keyBuilderInfo : keyBuilderInfos)
+        {
+            int order = keyBuilderInfo.getOrder();
+            if (keyIndexOrders.contains(order))
+                throw new MojoExecutionException("Columns of the same key must have different order. Field = " + keyBuilderInfo.getField().getName() + ", order = " + order + ", class = " + entityClass.getName() + ".");
+
+            keyIndexOrders.add(order);
+        }
     }
 
     private static boolean getAndValidateColumnNullable(Column column, String fieldName, String fieldTypeName, boolean fieldTypeIsPrimitive, boolean columnIsPrimaryKey, String entityClassName) throws MojoExecutionException
