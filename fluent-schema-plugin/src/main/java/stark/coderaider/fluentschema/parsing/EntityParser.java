@@ -4,6 +4,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.commons.annotations.*;
+import stark.coderaider.fluentschema.commons.metadata.AutoIncrementMetadata;
 import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
 import stark.coderaider.fluentschema.commons.metadata.TableMetadata;
 import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
@@ -165,7 +166,7 @@ public class EntityParser
                         throw new MojoExecutionException("Auto increment is only supported for primary key or unique columns. Field = " + field.getName() + ", (class = " + entityClassName + ").");
 
                     hasAutoIncrement = true;
-                    columnMetadataBuilder.autoIncrement(autoIncrement.begin(), autoIncrement.increment());
+                    columnMetadata.setAutoIncrement(new AutoIncrementMetadata(autoIncrement.begin(), autoIncrement.increment()));
                 }
             }
         }
