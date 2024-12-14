@@ -34,7 +34,7 @@ public class TableSchemaMetadataBuilder
         tableSchemaMetadata.setColumnMetadatas(columnMetadata);
 
         if (primaryKeyMetadataBuilder != null)
-            tableSchemaMetadata.setPrimaryKeyMetadatas(primaryKeyMetadataBuilder.build());
+            tableSchemaMetadata.setPrimaryKeyMetadata(primaryKeyMetadataBuilder.build());
 
         if (!keyMetadataBuilders.isEmpty())
         {

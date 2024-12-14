@@ -4,6 +4,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.commons.annotations.*;
+import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
 import stark.coderaider.fluentschema.commons.metadata.TableMetadata;
 import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
 import stark.coderaider.fluentschema.schemas.TableSchemaMetadata;
@@ -67,6 +68,7 @@ public class EntityParser
 
     public TableSchemaMetadata parse(Class<?> entityClass) throws MojoExecutionException
     {
+        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
         String entityClassName = entityClass.getName();
 
         Table table = entityClass.getAnnotation(Table.class);
@@ -148,11 +150,19 @@ public class EntityParser
                     columnMetadataBuilder.type(getColumnTypeByFieldType(fieldTypeName, varcharMaxLength));
                 }
 
-                columnMetadatas.add(columnMetadataBuilder.build());
+                ColumnMetadata columnMetadata = columnMetadataBuilder.build();
+                columnMetadatas.add(columnMetadata);
+
+                // Set primary key info if the current column is a column of primary key.
+                if (columnIsPrimaryKey)
+                {
+                    PrimaryKeyMetadata.PrimaryKeyMetadataBuilder primaryKeyMetadataBuilder = PrimaryKeyMetadata.builder();
+                    PrimaryKeyMetadata primaryKeyMetadata = primaryKeyMetadataBuilder.columnName(columnMetadata.getName()).build();
+                    tableSchemaMetadata.setPrimaryKeyMetadata(primaryKeyMetadata);
+                }
             }
         }
 
-        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
         tableSchemaMetadata.setName(tableName);
         tableSchemaMetadata.setColumnMetadatas(columnMetadatas);
         return tableSchemaMetadata;

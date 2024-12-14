@@ -13,6 +13,6 @@ public class TableSchemaMetadata
     private String name;
     private String comment;
     private List<ColumnMetadata> columnMetadatas;
-    private PrimaryKeyMetadata primaryKeyMetadatas;
+    private PrimaryKeyMetadata primaryKeyMetadata;
     private List<KeyMetadata> keyMetadatas;
 }
