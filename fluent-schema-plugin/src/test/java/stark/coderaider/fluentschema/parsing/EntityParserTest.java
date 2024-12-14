@@ -2,7 +2,7 @@ package stark.coderaider.fluentschema.parsing;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Test;
-import stark.coderaider.fluentschema.schemas.TableSchemaMetadata;
+import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 import stark.coderaider.fluentschema.test.entities.*;
 import stark.dataworks.basic.data.json.JsonSerializer;
 
@@ -13,9 +13,9 @@ public class EntityParserTest
     public void parse() throws MojoExecutionException
     {
         EntityParser parser = new EntityParser();
-        TableSchemaMetadata tableSchemaMetadata = parser.parse(Person.class);
+        TableSchemaInfo tableSchemaInfo = parser.parse(Person.class);
 
-        System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+        System.out.println(JsonSerializer.serialize(tableSchemaInfo));
     }
 
     @Test
@@ -25,8 +25,8 @@ public class EntityParserTest
 
         try
         {
-            TableSchemaMetadata tableSchemaMetadata = parser.parse(PersonWith2PrimaryKeys.class);
-            System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWith2PrimaryKeys.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
         {
@@ -41,8 +41,8 @@ public class EntityParserTest
 
         try
         {
-            TableSchemaMetadata tableSchemaMetadata = parser.parse(PersonWith2AutoIncrements.class);
-            System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWith2AutoIncrements.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
         {
@@ -57,8 +57,8 @@ public class EntityParserTest
 
         try
         {
-            TableSchemaMetadata tableSchemaMetadata = parser.parse(PersonAutoIncrementOnErrorColumnType.class);
-            System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+            TableSchemaInfo tableSchemaInfo = parser.parse(PersonAutoIncrementOnErrorColumnType.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
         {
@@ -73,8 +73,8 @@ public class EntityParserTest
 
         try
         {
-            TableSchemaMetadata tableSchemaMetadata = parser.parse(PersonAutoIncrementWithErrorColumnConstraint.class);
-            System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+            TableSchemaInfo tableSchemaInfo = parser.parse(PersonAutoIncrementWithErrorColumnConstraint.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
         {

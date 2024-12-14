@@ -1,7 +1,7 @@
 package stark.coderaider.fluentschema.examples;
 
 import stark.coderaider.fluentschema.schemas.SchemaSnapshotBase;
-import stark.coderaider.fluentschema.schemas.TableSchemaMetadata;
+import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 import stark.dataworks.basic.data.json.JsonSerializer;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class SchemaSnapshotExample extends SchemaSnapshotBase
     {
         SchemaSnapshotExample example = new SchemaSnapshotExample();
         example.buildSchema();
-        List<TableSchemaMetadata> tableSchemaMetadata = example.getTableSchemaInfos();
-        System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+        List<TableSchemaInfo> tableSchemaInfos = example.getTableSchemaInfos();
+        System.out.println(JsonSerializer.serialize(tableSchemaInfos));
     }
 }

@@ -7,7 +7,7 @@ import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableSchemaMetadataBuilder
+public class TableSchemaBuilder
 {
     private final String name;
     private final List<ColumnMetadata.ColumnMetadataBuilder> columnMetadataBuilders;
@@ -15,7 +15,7 @@ public class TableSchemaMetadataBuilder
     private final List<KeyMetadata.KeyMetadataBuilder> keyMetadataBuilders;
     private String tableComment;
 
-    public TableSchemaMetadataBuilder(String name)
+    public TableSchemaBuilder(String name)
     {
         this.name = name;
         columnMetadataBuilders = new ArrayList<>();
@@ -23,27 +23,27 @@ public class TableSchemaMetadataBuilder
         tableComment = null;
     }
 
-    public TableSchemaMetadata toTableSchemaInfo()
+    public TableSchemaInfo toTableSchemaInfo()
     {
-        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
-        tableSchemaMetadata.setName(name);
-        tableSchemaMetadata.setComment(tableComment);
+        TableSchemaInfo tableSchemaInfo = new TableSchemaInfo();
+        tableSchemaInfo.setName(name);
+        tableSchemaInfo.setComment(tableComment);
 
         List<ColumnMetadata> columnMetadata = new ArrayList<>();
         columnMetadataBuilders.forEach(x -> columnMetadata.add(x.build()));
-        tableSchemaMetadata.setColumnMetadatas(columnMetadata);
+        tableSchemaInfo.setColumnMetadatas(columnMetadata);
 
         if (primaryKeyMetadataBuilder != null)
-            tableSchemaMetadata.setPrimaryKeyMetadata(primaryKeyMetadataBuilder.build());
+            tableSchemaInfo.setPrimaryKeyMetadata(primaryKeyMetadataBuilder.build());
 
         if (!keyMetadataBuilders.isEmpty())
         {
             List<KeyMetadata> keyMetadata = new ArrayList<>();
             keyMetadataBuilders.forEach(x -> keyMetadata.add(x.build()));
-            tableSchemaMetadata.setKeyMetadatas(keyMetadata);
+            tableSchemaInfo.setKeyMetadatas(keyMetadata);
         }
 
-        return tableSchemaMetadata;
+        return tableSchemaInfo;
     }
 
     public void comment(String comment)

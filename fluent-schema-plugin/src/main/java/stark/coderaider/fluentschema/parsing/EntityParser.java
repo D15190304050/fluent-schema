@@ -8,7 +8,7 @@ import stark.coderaider.fluentschema.commons.metadata.AutoIncrementMetadata;
 import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
 import stark.coderaider.fluentschema.commons.metadata.TableMetadata;
 import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
-import stark.coderaider.fluentschema.schemas.TableSchemaMetadata;
+import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 import stark.dataworks.basic.beans.FieldExtractor;
 
 import java.lang.reflect.Field;
@@ -67,7 +67,7 @@ public class EntityParser
         );
     }
 
-    public TableSchemaMetadata parse(Class<?> entityClass) throws MojoExecutionException
+    public TableSchemaInfo parse(Class<?> entityClass) throws MojoExecutionException
     {
         String entityClassName = entityClass.getName();
 
@@ -170,13 +170,13 @@ public class EntityParser
             }
         }
 
-        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
-        tableSchemaMetadata.setName(tableName);
-        tableSchemaMetadata.setComment(tableMetadata.getComment());
-        tableSchemaMetadata.setEngine(tableMetadata.getEngine());
-        tableSchemaMetadata.setColumnMetadatas(columnMetadatas);
-        tableSchemaMetadata.setPrimaryKeyMetadata(primaryKeyMetadata);
-        return tableSchemaMetadata;
+        TableSchemaInfo tableSchemaInfo = new TableSchemaInfo();
+        tableSchemaInfo.setName(tableName);
+        tableSchemaInfo.setComment(tableMetadata.getComment());
+        tableSchemaInfo.setEngine(tableMetadata.getEngine());
+        tableSchemaInfo.setColumnMetadatas(columnMetadatas);
+        tableSchemaInfo.setPrimaryKeyMetadata(primaryKeyMetadata);
+        return tableSchemaInfo;
     }
 
     private static boolean getAndValidateColumnNullable(Column column, String fieldName, String fieldTypeName, boolean fieldTypeIsPrimitive, boolean columnIsPrimaryKey, String entityClassName) throws MojoExecutionException

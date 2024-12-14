@@ -8,7 +8,7 @@ import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
 import java.util.List;
 
 @Data
-public class TableSchemaMetadata
+public class TableSchemaInfo
 {
     private String name;
     private String comment;
