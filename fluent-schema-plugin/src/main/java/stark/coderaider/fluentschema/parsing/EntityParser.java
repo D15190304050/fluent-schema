@@ -68,7 +68,7 @@ public class EntityParser
 
     public TableSchemaMetadata parse(Class<?> entityClass) throws MojoExecutionException
     {
-        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
+
         String entityClassName = entityClass.getName();
 
         Table table = entityClass.getAnnotation(Table.class);
@@ -84,6 +84,7 @@ public class EntityParser
         boolean hasPrimaryKey = false;
 
         List<ColumnMetadata> columnMetadatas = new ArrayList<>();
+        PrimaryKeyMetadata primaryKeyMetadata = null;
         List<Field> fields = FieldExtractor.getAllFields(entityClass);
         for (Field field : fields)
         {
@@ -109,16 +110,6 @@ public class EntityParser
                         throw new MojoExecutionException(MessageFormat.format("There are more than 1 auto increment columns in table \"{0}\" (class = {1})", tableName, entityClassName));
 
                     hasPrimaryKey = true;
-                }
-
-                AutoIncrement autoIncrement = field.getAnnotation(AutoIncrement.class);
-                if (autoIncrement != null)
-                {
-                    if (hasAutoIncrement)
-                        throw new MojoExecutionException(MessageFormat.format("There are more than 1 auto increment columns in table \"{0}\" (class = {1})", tableName, entityClassName));
-
-                    hasAutoIncrement = true;
-                    columnMetadataBuilder.autoIncrement(autoIncrement.begin(), autoIncrement.increment());
                 }
 
                 Column column = field.getAnnotation(Column.class);
@@ -157,14 +148,32 @@ public class EntityParser
                 if (columnIsPrimaryKey)
                 {
                     PrimaryKeyMetadata.PrimaryKeyMetadataBuilder primaryKeyMetadataBuilder = PrimaryKeyMetadata.builder();
-                    PrimaryKeyMetadata primaryKeyMetadata = primaryKeyMetadataBuilder.columnName(columnMetadata.getName()).build();
-                    tableSchemaMetadata.setPrimaryKeyMetadata(primaryKeyMetadata);
+                    primaryKeyMetadata = primaryKeyMetadataBuilder.columnName(columnMetadata.getName()).build();
+                }
+
+                AutoIncrement autoIncrement = field.getAnnotation(AutoIncrement.class);
+                if (autoIncrement != null)
+                {
+                    if (hasAutoIncrement)
+                        throw new MojoExecutionException(MessageFormat.format("There are more than 1 auto increment columns in table \"{0}\" (class = {1})", tableName, entityClassName));
+
+                    if (!AUTO_INCREMENT_ACCEPTABLE_TYPES.contains(columnMetadata.getType()))
+                        throw new MojoExecutionException("Auto increment is only supported for INT and BIGINT columns. Field = " + fieldName + ", (class = " + entityClassName + ").");
+
+                    boolean unique = columnMetadata.isUnique();
+                    if (!unique && !columnIsPrimaryKey)
+                        throw new MojoExecutionException("Auto increment is only supported for primary key or unique columns. Field = " + field.getName() + ", (class = " + entityClassName + ").");
+
+                    hasAutoIncrement = true;
+                    columnMetadataBuilder.autoIncrement(autoIncrement.begin(), autoIncrement.increment());
                 }
             }
         }
 
+        TableSchemaMetadata tableSchemaMetadata = new TableSchemaMetadata();
         tableSchemaMetadata.setName(tableName);
         tableSchemaMetadata.setColumnMetadatas(columnMetadatas);
+        tableSchemaMetadata.setPrimaryKeyMetadata(primaryKeyMetadata);
         return tableSchemaMetadata;
     }
 

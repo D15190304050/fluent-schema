@@ -3,12 +3,8 @@ package stark.coderaider.fluentschema.parsing;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Test;
 import stark.coderaider.fluentschema.schemas.TableSchemaMetadata;
-import stark.coderaider.fluentschema.test.entities.Person;
-import stark.coderaider.fluentschema.test.entities.PersonWith2AutoIncrements;
-import stark.coderaider.fluentschema.test.entities.PersonWith2PrimaryKeys;
+import stark.coderaider.fluentschema.test.entities.*;
 import stark.dataworks.basic.data.json.JsonSerializer;
-
-import static org.junit.Assert.*;
 
 public class EntityParserTest
 {
@@ -46,6 +42,38 @@ public class EntityParserTest
         try
         {
             TableSchemaMetadata tableSchemaMetadata = parser.parse(PersonWith2AutoIncrements.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+        }
+        catch (MojoExecutionException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void parseAutoIncrementOnErrorColumnType()
+    {
+        EntityParser parser = new EntityParser();
+
+        try
+        {
+            TableSchemaMetadata tableSchemaMetadata = parser.parse(PersonAutoIncrementOnErrorColumnType.class);
+            System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
+        }
+        catch (MojoExecutionException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void parseAutoIncrementWithErrorColumnConstraint()
+    {
+        EntityParser parser = new EntityParser();
+
+        try
+        {
+            TableSchemaMetadata tableSchemaMetadata = parser.parse(PersonAutoIncrementWithErrorColumnConstraint.class);
             System.out.println(JsonSerializer.serialize(tableSchemaMetadata));
         }
         catch (MojoExecutionException e)
