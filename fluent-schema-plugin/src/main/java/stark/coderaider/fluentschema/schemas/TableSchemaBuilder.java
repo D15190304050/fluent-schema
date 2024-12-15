@@ -14,6 +14,7 @@ public class TableSchemaBuilder
     private PrimaryKeyMetadata.PrimaryKeyMetadataBuilder primaryKeyMetadataBuilder;
     private final List<KeyMetadata.KeyMetadataBuilder> keyMetadataBuilders;
     private String tableComment;
+    private String engine;
 
     public TableSchemaBuilder(String name)
     {
@@ -49,6 +50,10 @@ public class TableSchemaBuilder
     public void comment(String comment)
     {
         tableComment = comment;
+    }
+    public void engine(String engine)
+    {
+        this.engine = engine;
     }
 
     public ColumnMetadata.ColumnMetadataBuilder column()
