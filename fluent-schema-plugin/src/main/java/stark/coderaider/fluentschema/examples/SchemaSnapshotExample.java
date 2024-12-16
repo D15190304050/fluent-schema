@@ -37,27 +37,37 @@ public class SchemaSnapshotExample extends SchemaSnapshotBase
             builder.engine("InnoDB");
         });
 
-        schemaBuilder.table("Person", builder -> {builder.column()
-            .name("id")
-            .type("BIGINT")
-            .nullable(false)
-            .unique(false)
-            .autoIncrement(1, 1);builder.column()
-            .name("name")
-            .type("VARCHAR(200)")
-            .nullable(true)
-            .unique(false);builder.column()
-            .name("gender")
-            .type("VARCHAR(32767)")
-            .nullable(true)
-            .unique(false);builder.column()
-            .name("birthday")
-            .type("DATETIME")
-            .nullable(true)
-            .unique(false);builder.primaryKey()
-            .columnName("id");builder.key()
-            .name("idx_name")
-            .columns(List.of("name"));builder.engine("InnoDB");builder.comment("Table of basic information of persons.");});
+        schemaBuilder.table("Person", builder ->
+        {
+            builder.column()
+                .name("id")
+                .type("BIGINT")
+                .nullable(false)
+                .unique(false)
+                .autoIncrement(1, 1);
+            builder.column()
+                .name("name")
+                .type("VARCHAR(200)")
+                .nullable(true)
+                .unique(false);
+            builder.column()
+                .name("gender")
+                .type("VARCHAR(32767)")
+                .nullable(true)
+                .unique(false);
+            builder.column()
+                .name("birthday")
+                .type("DATETIME")
+                .nullable(true)
+                .unique(false);
+            builder.primaryKey()
+                .columnName("id");
+            builder.key()
+                .name("idx_name")
+                .columns(List.of("name"));
+            builder.engine("InnoDB");
+            builder.comment("Table of basic information of persons.");
+        });
     }
 
     public static void main(String[] args)

@@ -18,10 +18,49 @@ import java.util.List;
 
 public class SnapshotCodeGenerator
 {
-    public String generateTableBuilderCode(TableSchemaInfo tableSchemaInfo) throws MojoExecutionException, BadLocationException
+    public static String generateSchemaSnapshot(String packageName, String className, List<TableSchemaInfo> tableSchemaInfos) throws MojoExecutionException, BadLocationException
     {
-        StringBuilder tableBuilder = new StringBuilder();
+        StringBuilder schemaSnapshotBuilder = new StringBuilder();
 
+        // Package statement.
+        schemaSnapshotBuilder
+            .append("package ")
+            .append(packageName)
+            .append(";");
+
+        // Import statement.
+        schemaSnapshotBuilder
+            .append("import stark.coderaider.fluentschema.schemas.SchemaSnapshotBase;")
+            .append("import java.util.List;");
+
+        // Class name.
+        schemaSnapshotBuilder
+            .append("public class ")
+            .append(className)
+            .append(" extends SchemaSnapshotBase")
+            .append("{");
+
+        // The buildSchema() method.
+        schemaSnapshotBuilder
+            .append("@Override")
+            .append(System.lineSeparator())
+            .append("public void buildSchema()")
+            .append("{");
+
+        for (TableSchemaInfo tableSchemaInfo : tableSchemaInfos)
+            generateTableBuilderCode(schemaSnapshotBuilder, tableSchemaInfo);
+
+        schemaSnapshotBuilder.append("}");
+
+        // End of class.
+        schemaSnapshotBuilder.append("}");
+
+        return schemaSnapshotBuilder.toString();
+//        return formatCode(schemaSnapshotBuilder.toString());
+    }
+
+    public static void generateTableBuilderCode(StringBuilder tableBuilder, TableSchemaInfo tableSchemaInfo)
+    {
         // Table name.
         tableBuilder
             .append("schemaBuilder.table(\"")
@@ -71,8 +110,7 @@ public class SnapshotCodeGenerator
         tableBuilder
             .append("});");
 
-        return tableBuilder.toString();
-//        return formatCode(tableBuilder.toString());
+        tableBuilder.append(System.lineSeparator());
     }
 
     private static void appendKeyBuilder(KeyMetadata keyMetadata, StringBuilder tableBuilder)
