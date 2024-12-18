@@ -1,7 +1,10 @@
 package stark.coderaider.fluentschema.parsing;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
 import stark.coderaider.fluentschema.parsing.differences.ColumnChangeDifference;
+import stark.coderaider.fluentschema.parsing.differences.ColumnMetadataDifference;
+import stark.coderaider.fluentschema.parsing.differences.ColumnMetadataEditDistance;
 import stark.coderaider.fluentschema.parsing.differences.ColumnRenameDifference;
 import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 
@@ -33,27 +36,28 @@ public final class TableSchemaInfoComparator
             throw new NullPointerException("Left & right can not be null.");
     }
 
-    public void compareColumnMetadatas(List<ColumnMetadata> newColumnMetadatas, List<ColumnMetadata> oldColumnMetadatas)
+    public static ColumnMetadataDifference compareColumnMetadatas(List<ColumnMetadata> newColumnMetadatas, List<ColumnMetadata> oldColumnMetadatas)
     {
         Map<String, ColumnMetadata> newColumnMetadataMap = newColumnMetadatas.stream().collect(Collectors.toMap(ColumnMetadata::getName, x -> x));
         Map<String, ColumnMetadata> oldColumnMetadataMap = oldColumnMetadatas.stream().collect(Collectors.toMap(ColumnMetadata::getName, x -> x));
 
-        List<String> columnsNoMapping = new ArrayList<>();
-        List<ColumnMetadata> columnsToAdd = new ArrayList<>();
-        List<ColumnMetadata> columnsToRemove = new ArrayList<>();
+        List<String> columnsWithNewName = new ArrayList<>();
+        List<String> sameColumnNames = new ArrayList<>();
         List<ColumnChangeDifference> columnsToChange = new ArrayList<>();
         List<ColumnRenameDifference> columnsToRename = new ArrayList<>();
 
-        // 1st pass, find columns that
+        // 1st pass, find columns that have or do not have the same name.
         for (String columnName : newColumnMetadataMap.keySet())
         {
             ColumnMetadata newColumnMetadata = newColumnMetadataMap.get(columnName);
 
             ColumnMetadata oldColumnMetadata = oldColumnMetadataMap.get(columnName);
             if (oldColumnMetadata == null)
-                columnsNoMapping.add(columnName);
+                columnsWithNewName.add(columnName);
             else
             {
+                sameColumnNames.add(columnName);
+
                 // If the program get into this branch, then newColumnMetadata & oldColumnMetadata have the same column name.
                 // Then, if they are equal, then nothing is needed to do on this column.
                 // Otherwise, we apply the change column command.
@@ -67,5 +71,70 @@ public final class TableSchemaInfoComparator
                 }
             }
         }
+
+        // 2nd pass, remove columns with same names from 2 maps.
+        for (String columnName : sameColumnNames)
+        {
+            // Remove these column names, so that we only need to take care about column that can not match.
+            oldColumnMetadataMap.remove(columnName);
+            newColumnMetadataMap.remove(columnName);
+        }
+
+        // 3rd pass, find columns to rename.
+        for (String newColumnName : columnsWithNewName)
+        {
+            ColumnMetadata newColumnMetadata = newColumnMetadataMap.get(newColumnName);
+
+            for (ColumnMetadata oldColumnMetadata : oldColumnMetadataMap.values())
+            {
+                String oldColumnName = oldColumnMetadata.getName();
+                if (!containsOldColumnName(columnsToRename, oldColumnName))
+                {
+                    int editDistance = ColumnMetadataEditDistance.getEditDistance(newColumnMetadata, oldColumnMetadata);
+                    if (editDistance == 0)
+                    {
+                        ColumnRenameDifference columnRenameDifference = new ColumnRenameDifference();
+                        columnRenameDifference.setNewName(newColumnName);
+                        columnRenameDifference.setOldName(oldColumnName);
+                        columnsToRename.add(columnRenameDifference);
+                    }
+                }
+            }
+        }
+
+        // 4th pass, remove columns that need to be renamed from 2 maps & columnsWithNewName.
+        for (ColumnRenameDifference columnRenameDifference : columnsToRename)
+        {
+            String oldColumnName = columnRenameDifference.getOldName();
+            String newColumnName = columnRenameDifference.getNewName();
+
+            columnsWithNewName.remove(newColumnName);
+            oldColumnMetadataMap.remove(oldColumnName);
+            newColumnMetadataMap.remove(newColumnName);
+        }
+
+        // 5th pass, find columns to add / remove.
+        // If there is any element in newColumnMetadataMap, then it is a new column.
+        // And if there is any element in oldColumnMetadataMap, then it is a column to be removed.
+        // And they must have same count.
+        List<ColumnMetadata> columnsToAdd = new ArrayList<>(newColumnMetadataMap.values());
+        List<ColumnMetadata> columnsToRemove = new ArrayList<>(oldColumnMetadataMap.values());
+
+        ColumnMetadataDifference columnMetadataDifference = new ColumnMetadataDifference();
+        columnMetadataDifference.setColumnsToChange(columnsToChange);
+        columnMetadataDifference.setColumnsToRename(columnsToRename);
+        columnMetadataDifference.setColumnsToAdd(columnsToAdd);
+        columnMetadataDifference.setColumnsToRemove(columnsToRemove);
+        return columnMetadataDifference;
+    }
+
+    private static boolean containsOldColumnName(List<ColumnRenameDifference> columnsToRename, String oldColumnName)
+    {
+        for (ColumnRenameDifference columnChangeDifference : columnsToRename)
+        {
+            if (columnChangeDifference.getOldName().equals(oldColumnName))
+                return true;
+        }
+        return false;
     }
 }
