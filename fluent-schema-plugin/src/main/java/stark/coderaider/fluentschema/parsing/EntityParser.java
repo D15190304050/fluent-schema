@@ -167,8 +167,6 @@ public class EntityParser
                 }
 
                 // Keys.
-//                Keys keys = field.getAnnotation(Keys.class);
-//                if (keys != null && keys.value() != null)
                 Key[] keys = field.getAnnotationsByType(Key.class);
                 if (keys.length > 0)
                 {
@@ -191,6 +189,12 @@ public class EntityParser
                 }
             }
         }
+
+        if (columnMetadatas.isEmpty())
+            throw new MojoExecutionException("There is no column definition in table \"" + tableName + "\" (class = " + entityClassName + ").");
+
+        if (primaryKeyMetadata == null)
+            throw new MojoExecutionException("There is no primary key definition in table \"" + tableName + "\" (class = " + entityClassName + ").");
 
         TableSchemaInfo tableSchemaInfo = new TableSchemaInfo();
         tableSchemaInfo.setName(tableName);

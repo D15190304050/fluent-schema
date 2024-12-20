@@ -1,6 +1,5 @@
 package stark.coderaider.fluentschema.parsing;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Assert;
 import org.junit.Test;
 import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;

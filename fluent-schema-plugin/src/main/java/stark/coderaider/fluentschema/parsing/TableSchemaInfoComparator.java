@@ -2,15 +2,13 @@ package stark.coderaider.fluentschema.parsing;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
-import stark.coderaider.fluentschema.parsing.differences.ColumnChangeDifference;
-import stark.coderaider.fluentschema.parsing.differences.ColumnMetadataDifference;
-import stark.coderaider.fluentschema.parsing.differences.ColumnMetadataEditDistance;
-import stark.coderaider.fluentschema.parsing.differences.ColumnRenameDifference;
+import stark.coderaider.fluentschema.parsing.differences.*;
 import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +19,7 @@ public final class TableSchemaInfoComparator
     private TableSchemaInfoComparator()
     {}
 
-    public void compareTableSchemaInfo(TableSchemaInfo left, TableSchemaInfo right)
+    public void compareTableSchemaInfos(List<TableSchemaInfo> newTableSchemaInfos, List<TableSchemaInfo> oldTableSchemaInfos)
     {
         // Case 1: Rename table, all columns are identical.
         // Case 2: Change storage engine.
@@ -32,14 +30,24 @@ public final class TableSchemaInfoComparator
         // Case 5: Change comment.
         // Case 6: Change primary key.
 
-        if (left == null || right == null)
-            throw new NullPointerException("Left & right can not be null.");
+        if (newTableSchemaInfos == null || oldTableSchemaInfos == null)
+            throw new NullPointerException("newTableSchemaInfos & oldTableSchemaInfos can not be null.");
+
+        Map<String, TableSchemaInfo> newTableSchemaInfoMap = newTableSchemaInfos.stream().collect(Collectors.toMap(TableSchemaInfo::getName, Function.identity()));
+        Map<String, TableSchemaInfo> oldTableSchemaInfoMap = oldTableSchemaInfos.stream().collect(Collectors.toMap(TableSchemaInfo::getName, Function.identity()));
+
+        List<String> tablesWithNewName = new ArrayList<>();
+        List<String> sameTableNames = new ArrayList<>();
+        List<TableSchemaInfo> tablesToAlter = new ArrayList<>();
+        List<TableSchemaInfo> tablesToRename = new ArrayList<>();
+
+        // 1st pass, find columns that have or do not have the same name.
     }
 
     public static ColumnMetadataDifference compareColumnMetadatas(List<ColumnMetadata> newColumnMetadatas, List<ColumnMetadata> oldColumnMetadatas)
     {
-        Map<String, ColumnMetadata> newColumnMetadataMap = newColumnMetadatas.stream().collect(Collectors.toMap(ColumnMetadata::getName, x -> x));
-        Map<String, ColumnMetadata> oldColumnMetadataMap = oldColumnMetadatas.stream().collect(Collectors.toMap(ColumnMetadata::getName, x -> x));
+        Map<String, ColumnMetadata> newColumnMetadataMap = newColumnMetadatas.stream().collect(Collectors.toMap(ColumnMetadata::getName, Function.identity()));
+        Map<String, ColumnMetadata> oldColumnMetadataMap = oldColumnMetadatas.stream().collect(Collectors.toMap(ColumnMetadata::getName, Function.identity()));
 
         List<String> columnsWithNewName = new ArrayList<>();
         List<String> sameColumnNames = new ArrayList<>();
@@ -90,7 +98,7 @@ public final class TableSchemaInfoComparator
                 String oldColumnName = oldColumnMetadata.getName();
                 if (!containsOldColumnName(columnsToRename, oldColumnName))
                 {
-                    int editDistance = ColumnMetadataEditDistance.getEditDistance(newColumnMetadata, oldColumnMetadata);
+                    int editDistance = EditDistanceCalculator.getEditDistance(newColumnMetadata, oldColumnMetadata);
                     if (editDistance == 0)
                     {
                         ColumnRenameDifference columnRenameDifference = new ColumnRenameDifference();
