@@ -4,13 +4,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jface.text.BadLocationException;
 import org.junit.Test;
 import stark.coderaider.fluentschema.parsing.EntityParser;
-import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
+import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 import stark.coderaider.fluentschema.test.entities.Person;
 import stark.coderaider.fluentschema.test.entities.PersonWithCombinationKey;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class SnapshotCodeGeneratorTest
 {

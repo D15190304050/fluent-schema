@@ -1,10 +1,10 @@
 package stark.coderaider.fluentschema.parsing.differences;
 
-import stark.coderaider.fluentschema.commons.metadata.AutoIncrementMetadata;
-import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
-import stark.coderaider.fluentschema.commons.metadata.KeyMetadata;
-import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
-import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
+import stark.coderaider.fluentschema.commons.schemas.AutoIncrementMetadata;
+import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
+import stark.coderaider.fluentschema.commons.schemas.PrimaryKeyMetadata;
+import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 
 import java.util.HashSet;
 import java.util.List;

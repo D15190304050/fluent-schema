@@ -1,10 +1,8 @@
 package stark.coderaider.fluentschema.parsing;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 import stark.coderaider.fluentschema.parsing.differences.*;
-import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
-import stark.dataworks.basic.fun.EditDistance;
+import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 
 import java.util.ArrayList;
 import java.util.List;

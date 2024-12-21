@@ -1,4 +1,4 @@
-package stark.coderaider.fluentschema.schemas;
+package stark.coderaider.fluentschema.commons.schemas;
 
 import lombok.Getter;
 

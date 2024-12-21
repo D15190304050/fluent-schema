@@ -2,7 +2,7 @@ package stark.coderaider.fluentschema.parsing.differences;
 
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
-import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 
 import java.util.List;
 

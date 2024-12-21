@@ -2,7 +2,7 @@ package stark.coderaider.fluentschema.parsing;
 
 import org.junit.Assert;
 import org.junit.Test;
-import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 import stark.coderaider.fluentschema.parsing.differences.ColumnMetadataDifference;
 import stark.dataworks.basic.data.json.JsonSerializer;
 

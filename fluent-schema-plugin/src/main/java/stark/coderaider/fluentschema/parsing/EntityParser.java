@@ -4,9 +4,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.commons.annotations.*;
-import stark.coderaider.fluentschema.commons.metadata.*;
-import stark.coderaider.fluentschema.schemas.KeyBuilderInfo;
-import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
+import stark.coderaider.fluentschema.commons.schemas.*;
 import stark.dataworks.basic.beans.FieldExtractor;
 
 import java.lang.reflect.Field;

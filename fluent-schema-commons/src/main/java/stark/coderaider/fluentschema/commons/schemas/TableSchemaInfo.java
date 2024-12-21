@@ -1,9 +1,6 @@
-package stark.coderaider.fluentschema.schemas;
+package stark.coderaider.fluentschema.commons.schemas;
 
 import lombok.Data;
-import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
-import stark.coderaider.fluentschema.commons.metadata.KeyMetadata;
-import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
 
 import java.util.List;
 

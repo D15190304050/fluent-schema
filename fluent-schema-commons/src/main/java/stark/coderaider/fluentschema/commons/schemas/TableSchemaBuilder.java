@@ -1,8 +1,4 @@
-package stark.coderaider.fluentschema.schemas;
-
-import stark.coderaider.fluentschema.commons.metadata.ColumnMetadata;
-import stark.coderaider.fluentschema.commons.metadata.KeyMetadata;
-import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
+package stark.coderaider.fluentschema.commons.schemas;
 
 import java.util.ArrayList;
 import java.util.List;

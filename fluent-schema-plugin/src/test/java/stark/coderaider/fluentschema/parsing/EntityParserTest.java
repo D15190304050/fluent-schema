@@ -2,7 +2,7 @@ package stark.coderaider.fluentschema.parsing;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Test;
-import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
+import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 import stark.coderaider.fluentschema.test.entities.*;
 import stark.dataworks.basic.data.json.JsonSerializer;
 

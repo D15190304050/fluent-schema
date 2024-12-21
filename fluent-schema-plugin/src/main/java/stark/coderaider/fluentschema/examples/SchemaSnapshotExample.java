@@ -1,7 +1,7 @@
 package stark.coderaider.fluentschema.examples;
 
-import stark.coderaider.fluentschema.schemas.SchemaSnapshotBase;
-import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
+import stark.coderaider.fluentschema.commons.schemas.SchemaSnapshotBase;
+import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 import stark.dataworks.basic.data.json.JsonSerializer;
 
 import java.util.List;
