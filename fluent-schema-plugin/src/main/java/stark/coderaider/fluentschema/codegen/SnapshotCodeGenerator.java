@@ -3,6 +3,7 @@ package stark.coderaider.fluentschema.codegen;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
@@ -14,7 +15,9 @@ import stark.coderaider.fluentschema.commons.metadata.KeyMetadata;
 import stark.coderaider.fluentschema.commons.metadata.PrimaryKeyMetadata;
 import stark.coderaider.fluentschema.schemas.TableSchemaInfo;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SnapshotCodeGenerator
 {
@@ -206,7 +209,13 @@ public class SnapshotCodeGenerator
 
     public static String formatCode(String code) throws BadLocationException, MojoExecutionException
     {
-        CodeFormatter formatter = ToolFactory.createCodeFormatter(null);
+        Map<String, String> options = new HashMap<>();
+        options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE, "1");
+        options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS, "1");
+        options.put("org.eclipse.jdt.core.formatter.tabulation.char", "space"); // 使用空格替代Tab
+        options.put("org.eclipse.jdt.core.formatter.tabulation.size", "4");
+
+        CodeFormatter formatter = ToolFactory.createCodeFormatter(options);
         TextEdit edit = formatter.format(CodeFormatter.K_COMPILATION_UNIT, code, 0, code.length(), 0, null);
 
         if (edit != null)

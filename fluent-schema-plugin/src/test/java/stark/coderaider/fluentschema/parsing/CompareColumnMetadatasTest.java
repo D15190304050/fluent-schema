@@ -9,7 +9,7 @@ import stark.dataworks.basic.data.json.JsonSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableSchemaInfoComparatorTest
+public class CompareColumnMetadatasTest
 {
     /**
      * Case 1: No change.

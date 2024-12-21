@@ -39,7 +39,7 @@ public final class EditDistanceCalculator
 
         int editDistance = 0;
         editDistance += editDistanceOfStringField(left, right, TableSchemaInfo::getComment);
-        editDistance += editDistanceOfStringField(right, left, TableSchemaInfo::getEngine);
+        editDistance += editDistanceOfStringField(left, right, TableSchemaInfo::getEngine);
 
         PrimaryKeyMetadata primaryKeyMetadataLeft = left.getPrimaryKeyMetadata();
         PrimaryKeyMetadata primaryKeyMetadataRight = right.getPrimaryKeyMetadata();
@@ -136,7 +136,7 @@ public final class EditDistanceCalculator
         return editDistance;
     }
 
-    private static <T> int editDistanceOfStringField(T left, T right, Function<T, String> fieldGetter)
+    public static <T> int editDistanceOfStringField(T left, T right, Function<T, String> fieldGetter)
     {
         String fieldValueLeft = fieldGetter.apply(left);
         fieldValueLeft = fieldValueLeft == null ? "" : fieldValueLeft;
