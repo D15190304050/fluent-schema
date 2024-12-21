@@ -8,6 +8,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.springframework.util.CollectionUtils;
 import stark.coderaider.fluentschema.commons.NamingConverter;
+import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
+import stark.coderaider.fluentschema.parsing.EntityParser;
 
 import javax.tools.*;
 import java.io.File;
@@ -55,9 +57,18 @@ public class GenerateSchema extends AbstractMojo
             return;
         }
 
+        List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
+        for (Class<?> entityClass : entityClasses)
+        {
+            EntityParser parser = new EntityParser();
+            TableSchemaInfo tableSchemaInfo = parser.parse(entityClass);
+            newTableSchemaInfos.add(tableSchemaInfo);
+        }
+
         Class<?> schemaClass = getSchemaClass();
-        if (schemaClass == null)
-            ;
+        boolean needInitialHistoryTable = schemaClass != null;
+
+
     }
 
     private Class<?> getSchemaClass() throws MojoExecutionException

@@ -33,7 +33,7 @@ public class SnapshotCodeGenerator
 
         // Import statement.
         schemaSnapshotBuilder
-            .append("import stark.coderaider.fluentschema.schemas.SchemaSnapshotBase;")
+            .append("import stark.coderaider.fluentschema.commons.schemas.SchemaSnapshotBase;")
             .append("import java.util.List;");
 
         // Class name.

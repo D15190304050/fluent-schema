@@ -295,20 +295,19 @@ public class EntityParser
     {
         String columnName = column.name();
         if (columnName.isEmpty())
-            columnName = fieldName;
+            return NamingConverter.applyConvention(fieldName, namingConvention);
 
         try
         {
             String convertedColumnName = NamingConverter.applyConvention(columnName, namingConvention);
             if (!convertedColumnName.equals(columnName))
                 throw new MojoExecutionException(MessageFormat.format("The specified column name does not satisfy the naming convention. Column = \"{0}\", field = \"{1}\", class = \"{2}\"", columnName, fieldName, entityClassName));
+            return columnName;
         }
         catch (IllegalArgumentException e)
         {
             throw new MojoExecutionException(e.getMessage(), e);
         }
-
-        return columnName;
     }
 
     private static String getTableName(Class<?> entityClass, Table table, NamingConvention namingConvention) throws MojoExecutionException
