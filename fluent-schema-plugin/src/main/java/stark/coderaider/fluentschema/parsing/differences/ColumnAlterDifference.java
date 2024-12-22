@@ -4,7 +4,7 @@ import lombok.Data;
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 
 @Data
-public class ColumnChangeDifference
+public class ColumnAlterDifference
 {
     private String name;
     private ColumnMetadata oldColumnMetadata;

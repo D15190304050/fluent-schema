@@ -1,13 +1,11 @@
 package stark.coderaider.fluentschema.parsing;
 
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
-import stark.coderaider.fluentschema.commons.schemas.PrimaryKeyMetadata;
+import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.parsing.differences.*;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -129,7 +127,7 @@ public final class TableSchemaInfoComparator
 
         List<String> columnsWithNewName = new ArrayList<>();
         List<String> sameColumnNames = new ArrayList<>();
-        List<ColumnChangeDifference> columnsToAlter = new ArrayList<>();
+        List<ColumnAlterDifference> columnsToAlter = new ArrayList<>();
         List<ColumnRenameDifference> columnsToRename = new ArrayList<>();
 
         // 1st pass, find columns that have or do not have the same name.
@@ -150,11 +148,11 @@ public final class TableSchemaInfoComparator
                 int editDistance = EditDistanceCalculator.getEditDistance(newColumnMetadata, oldColumnMetadata);
                 if (editDistance != 0)
                 {
-                    ColumnChangeDifference columnChangeDifference = new ColumnChangeDifference();
-                    columnChangeDifference.setName(columnName);
-                    columnChangeDifference.setOldColumnMetadata(oldColumnMetadata);
-                    columnChangeDifference.setNewColumnMetadata(newColumnMetadata);
-                    columnsToAlter.add(columnChangeDifference);
+                    ColumnAlterDifference columnAlterDifference = new ColumnAlterDifference();
+                    columnAlterDifference.setName(columnName);
+                    columnAlterDifference.setOldColumnMetadata(oldColumnMetadata);
+                    columnAlterDifference.setNewColumnMetadata(newColumnMetadata);
+                    columnsToAlter.add(columnAlterDifference);
                 }
             }
         }
@@ -232,5 +230,55 @@ public final class TableSchemaInfoComparator
                 return true;
         }
         return false;
+    }
+
+    public static KeyMetadataDifference compareKeyMetadatas(List<KeyMetadata> newKeyMetadatas, List<KeyMetadata> oldKeyMetadatas)
+    {
+        Map<String, KeyMetadata> newKeyMetadataMap = newKeyMetadatas.stream().collect(Collectors.toMap(KeyMetadata::getName, Function.identity()));
+        Map<String, KeyMetadata> oldKeyMetadataMap = oldKeyMetadatas.stream().collect(Collectors.toMap(KeyMetadata::getName, Function.identity()));
+
+        Set<String> newKeyNames = newKeyMetadataMap.keySet();
+        Set<String> oldKeyNames = oldKeyMetadataMap.keySet();
+
+        HashSet<String> namesOfKeysToAdd = difference(newKeyNames, oldKeyNames);
+        List<KeyMetadata> keysToAdd = new ArrayList<>();
+        for (String keyName : namesOfKeysToAdd)
+            keysToAdd.add(newKeyMetadataMap.get(keyName));
+
+        HashSet<String> namesOfKeysToDrop = difference(oldKeyNames, newKeyNames);
+        List<KeyMetadata> keysToDrop = new ArrayList<>();
+        for (String keyName : namesOfKeysToDrop)
+            keysToDrop.add(oldKeyMetadataMap.get(keyName));
+
+        List<KeyAlterDifference> keysToAlter = new ArrayList<>();
+        for (String newKeyName : namesOfKeysToAdd)
+        {
+            if (!namesOfKeysToAdd.contains(newKeyName) && !namesOfKeysToDrop.contains(newKeyName))
+            {
+                KeyMetadata newKeyMetadata = newKeyMetadataMap.get(newKeyName);
+                KeyMetadata oldKeyMetadata = oldKeyMetadataMap.get(newKeyName);
+                if (!newKeyMetadata.equals(oldKeyMetadata))
+                {
+                    KeyAlterDifference keyAlterDifference = new KeyAlterDifference();
+                    keyAlterDifference.setName(newKeyName);
+                    keyAlterDifference.setOldKeyMetadata(oldKeyMetadata);
+                    keyAlterDifference.setNewKeyMetadata(newKeyMetadata);
+                    keysToAlter.add(keyAlterDifference);
+                }
+            }
+        }
+
+        KeyMetadataDifference keyMetadataDifference = new KeyMetadataDifference();
+        keyMetadataDifference.setKeysToAlter(keysToAlter);
+        keyMetadataDifference.setKeysToAdd(keysToAdd);
+        keyMetadataDifference.setKeysToDrop(keysToDrop);
+        return keyMetadataDifference;
+    }
+
+    private static <T> HashSet<T> difference(Set<T> set1, Set<T> set2)
+    {
+        HashSet<T> diff = new HashSet<>(set1);
+        diff.removeAll(set2);
+        return diff;
     }
 }

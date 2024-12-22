@@ -400,12 +400,12 @@ public class CompareTableSchemaInfosTest
         Assert.assertFalse(columnMetadataDifference.noChange());
 
         // Column "name", from "VARCHAR(200)" to "VARCHAR(100)".
-        List<ColumnChangeDifference> columnsToAlter = columnMetadataDifference.getColumnsToAlter();
+        List<ColumnAlterDifference> columnsToAlter = columnMetadataDifference.getColumnsToAlter();
         Assert.assertEquals(1, columnsToAlter.size());
-        ColumnChangeDifference columnChangeDifference = columnsToAlter.get(0);
-        Assert.assertEquals("name", columnChangeDifference.getName());
-        Assert.assertEquals("VARCHAR(200)", columnChangeDifference.getOldColumnMetadata().getType());
-        Assert.assertEquals("VARCHAR(100)", columnChangeDifference.getNewColumnMetadata().getType());
+        ColumnAlterDifference columnAlterDifference = columnsToAlter.get(0);
+        Assert.assertEquals("name", columnAlterDifference.getName());
+        Assert.assertEquals("VARCHAR(200)", columnAlterDifference.getOldColumnMetadata().getType());
+        Assert.assertEquals("VARCHAR(100)", columnAlterDifference.getNewColumnMetadata().getType());
 
         List<ColumnRenameDifference> columnsToRename = columnMetadataDifference.getColumnsToRename();
         Assert.assertEquals(1, columnsToRename.size());

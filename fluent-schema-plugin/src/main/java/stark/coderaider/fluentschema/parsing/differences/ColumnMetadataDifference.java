@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class ColumnMetadataDifference
 {
-    List<ColumnChangeDifference> columnsToAlter;
+    List<ColumnAlterDifference> columnsToAlter;
     List<ColumnRenameDifference> columnsToRename;
     List<ColumnMetadata> columnsToAdd;
     List<ColumnMetadata> columnsToDrop;
