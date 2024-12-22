@@ -18,9 +18,7 @@ public class SchemaBuilder
 
     public void table(String name, Consumer<TableSchemaBuilder> consumer)
     {
-        TableSchemaBuilder builder = new TableSchemaBuilder(name);
-        consumer.accept(builder);
-        TableSchemaInfo tableSchemaInfo = builder.toTableSchemaInfo();
+        TableSchemaInfo tableSchemaInfo =  TableSchemaBuilder.build(name, consumer);
         this.tableSchemaInfos.add(tableSchemaInfo);
     }
 }

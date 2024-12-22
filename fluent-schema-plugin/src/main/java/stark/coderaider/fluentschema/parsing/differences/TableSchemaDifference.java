@@ -9,10 +9,10 @@ import java.util.List;
 @Data
 public class TableSchemaDifference
 {
-    List<TableChangeDifference> tablesToChange;
+    List<TableChangeDifference> tablesToAlter;
     List<TableRenameDifference> tablesToRename;
     List<TableSchemaInfo> tablesToAdd;
-    List<TableSchemaInfo> tablesToRemove;
+    List<TableSchemaInfo> tablesToDrop;
 
     /**
      * Returns {@code true} if there is no change on table schema; otherwise, {@code false}.
@@ -20,9 +20,9 @@ public class TableSchemaDifference
      */
     public boolean noChange()
     {
-        return CollectionUtils.isEmpty(tablesToChange) &&
+        return CollectionUtils.isEmpty(tablesToAlter) &&
             CollectionUtils.isEmpty(tablesToRename) &&
             CollectionUtils.isEmpty(tablesToAdd) &&
-            CollectionUtils.isEmpty(tablesToRemove);
+            CollectionUtils.isEmpty(tablesToDrop);
     }
 }

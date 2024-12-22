@@ -2,6 +2,7 @@ package stark.coderaider.fluentschema.commons.schemas;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TableSchemaBuilder
 {
@@ -25,6 +26,7 @@ public class TableSchemaBuilder
         TableSchemaInfo tableSchemaInfo = new TableSchemaInfo();
         tableSchemaInfo.setName(name);
         tableSchemaInfo.setComment(tableComment);
+        tableSchemaInfo.setEngine(engine);
 
         List<ColumnMetadata> columnMetadata = new ArrayList<>();
         columnMetadataBuilders.forEach(x -> columnMetadata.add(x.build()));
@@ -70,5 +72,12 @@ public class TableSchemaBuilder
         KeyMetadata.KeyMetadataBuilder builder = KeyMetadata.builder();
         keyMetadataBuilders.add(builder);
         return builder;
+    }
+
+    public static TableSchemaInfo build(String name, Consumer<TableSchemaBuilder> consumer)
+    {
+        TableSchemaBuilder builder = new TableSchemaBuilder(name);
+        consumer.accept(builder);
+        return builder.toTableSchemaInfo();
     }
 }

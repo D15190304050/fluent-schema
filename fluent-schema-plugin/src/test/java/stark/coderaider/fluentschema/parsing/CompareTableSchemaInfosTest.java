@@ -61,7 +61,7 @@ public class CompareTableSchemaInfosTest
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         String tableSchemaDifferenceJson = JsonSerializer.serialize(tableSchemaDifference);
         System.out.println(tableSchemaDifferenceJson);
-        TableSchemaDifference correct = JsonSerializer.deserialize("{\"tablesToChange\":[],\"tablesToRename\":[{\"oldName\":\"person_with_combination_key\",\"newName\":\"PersonWithCombinationKey\"}],\"tablesToAdd\":[],\"tablesToRemove\":[]}", TableSchemaDifference.class);
+        TableSchemaDifference correct = JsonSerializer.deserialize("{\"tablesToAlter\":[],\"tablesToRename\":[{\"oldName\":\"person_with_combination_key\",\"newName\":\"PersonWithCombinationKey\"}],\"tablesToAdd\":[],\"tablesToDrop\":[]}", TableSchemaDifference.class);
         Assert.assertEquals(tableSchemaDifference, correct);
     }
 
@@ -88,10 +88,10 @@ public class CompareTableSchemaInfosTest
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
         Assert.assertFalse(tableSchemaDifference.noChange());
 
-        List<TableChangeDifference> tablesToChange = tableSchemaDifference.getTablesToChange();
-        TableChangeDifference tableToChange = tablesToChange.get(0);
-        TableSchemaInfo oldTableSchemaInfo = tableToChange.getOldTableSchemaInfo();
-        TableSchemaInfo newTableSchemaInfo = tableToChange.getNewTableSchemaInfo();
+        List<TableChangeDifference> tablesToAlter = tableSchemaDifference.getTablesToAlter();
+        TableChangeDifference tableToAlter = tablesToAlter.get(0);
+        TableSchemaInfo oldTableSchemaInfo = tableToAlter.getOldTableSchemaInfo();
+        TableSchemaInfo newTableSchemaInfo = tableToAlter.getNewTableSchemaInfo();
 
         List<ColumnMetadata> oldColumnMetadatas = oldTableSchemaInfo.getColumnMetadatas();
         List<ColumnMetadata> newColumnMetadatas = newTableSchemaInfo.getColumnMetadatas();
@@ -131,10 +131,10 @@ public class CompareTableSchemaInfosTest
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
         Assert.assertFalse(tableSchemaDifference.noChange());
 
-        List<TableChangeDifference> tablesToChange = tableSchemaDifference.getTablesToChange();
-        TableChangeDifference tableToChange = tablesToChange.get(0);
-        TableSchemaInfo oldTableSchemaInfo = tableToChange.getOldTableSchemaInfo();
-        TableSchemaInfo newTableSchemaInfo = tableToChange.getNewTableSchemaInfo();
+        List<TableChangeDifference> tablesToAlter = tableSchemaDifference.getTablesToAlter();
+        TableChangeDifference tableToAlter = tablesToAlter.get(0);
+        TableSchemaInfo oldTableSchemaInfo = tableToAlter.getOldTableSchemaInfo();
+        TableSchemaInfo newTableSchemaInfo = tableToAlter.getNewTableSchemaInfo();
 
         List<ColumnMetadata> oldColumnMetadatas = oldTableSchemaInfo.getColumnMetadatas();
         List<ColumnMetadata> newColumnMetadatas = newTableSchemaInfo.getColumnMetadatas();
@@ -171,8 +171,8 @@ public class CompareTableSchemaInfosTest
         Assert.assertFalse(tableSchemaDifference.noChange());
 
         // Detailed asserts.
-        Assert.assertTrue(tableSchemaDifference.getTablesToRemove().isEmpty());
-        Assert.assertTrue(tableSchemaDifference.getTablesToChange().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToDrop().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToAlter().isEmpty());
         Assert.assertTrue(tableSchemaDifference.getTablesToRename().isEmpty());
         Assert.assertEquals(1, tableSchemaDifference.getTablesToAdd().size());
     }
@@ -199,8 +199,8 @@ public class CompareTableSchemaInfosTest
         Assert.assertFalse(tableSchemaDifference.noChange());
 
         // Detailed asserts.
-        Assert.assertTrue(tableSchemaDifference.getTablesToRemove().isEmpty());
-        Assert.assertTrue(tableSchemaDifference.getTablesToChange().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToDrop().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToAlter().isEmpty());
         Assert.assertTrue(tableSchemaDifference.getTablesToRename().isEmpty());
         Assert.assertEquals(2, tableSchemaDifference.getTablesToAdd().size());
     }
@@ -227,9 +227,9 @@ public class CompareTableSchemaInfosTest
 
         // Detailed asserts.
         Assert.assertTrue(tableSchemaDifference.getTablesToAdd().isEmpty());
-        Assert.assertTrue(tableSchemaDifference.getTablesToChange().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToAlter().isEmpty());
         Assert.assertTrue(tableSchemaDifference.getTablesToRename().isEmpty());
-        Assert.assertEquals(1, tableSchemaDifference.getTablesToRemove().size());
+        Assert.assertEquals(1, tableSchemaDifference.getTablesToDrop().size());
     }
 
     /**
@@ -255,9 +255,9 @@ public class CompareTableSchemaInfosTest
 
         // Detailed asserts.
         Assert.assertTrue(tableSchemaDifference.getTablesToAdd().isEmpty());
-        Assert.assertTrue(tableSchemaDifference.getTablesToChange().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToAlter().isEmpty());
         Assert.assertTrue(tableSchemaDifference.getTablesToRename().isEmpty());
-        Assert.assertEquals(2, tableSchemaDifference.getTablesToRemove().size());
+        Assert.assertEquals(2, tableSchemaDifference.getTablesToDrop().size());
     }
 
     /**
@@ -282,10 +282,10 @@ public class CompareTableSchemaInfosTest
         Assert.assertFalse(tableSchemaDifference.noChange());
 
         // Detailed asserts.
-        Assert.assertTrue(tableSchemaDifference.getTablesToChange().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToAlter().isEmpty());
         Assert.assertTrue(tableSchemaDifference.getTablesToRename().isEmpty());
         Assert.assertEquals(1, tableSchemaDifference.getTablesToAdd().size());
-        Assert.assertEquals(1, tableSchemaDifference.getTablesToRemove().size());
+        Assert.assertEquals(1, tableSchemaDifference.getTablesToDrop().size());
     }
 
     /**
@@ -313,8 +313,8 @@ public class CompareTableSchemaInfosTest
         Assert.assertFalse(tableSchemaDifference.noChange());
 
         // Detailed asserts.
-        Assert.assertTrue(tableSchemaDifference.getTablesToChange().isEmpty());
-        Assert.assertTrue(tableSchemaDifference.getTablesToRemove().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToAlter().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToDrop().isEmpty());
         Assert.assertEquals(1, tableSchemaDifference.getTablesToAdd().size());
         Assert.assertEquals(1, tableSchemaDifference.getTablesToRename().size());
     }
@@ -347,22 +347,22 @@ public class CompareTableSchemaInfosTest
 
         // Detailed asserts.
         Assert.assertTrue(tableSchemaDifference.getTablesToRename().isEmpty());
-        Assert.assertTrue(tableSchemaDifference.getTablesToRemove().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToDrop().isEmpty());
         Assert.assertTrue(tableSchemaDifference.getTablesToAdd().isEmpty());
 
-        List<TableChangeDifference> tablesToChange = tableSchemaDifference.getTablesToChange();
-        Assert.assertEquals(1, tablesToChange.size());
+        List<TableChangeDifference> tablesToAlter = tableSchemaDifference.getTablesToAlter();
+        Assert.assertEquals(1, tablesToAlter.size());
 
-        TableChangeDifference tableToChange = tablesToChange.get(0);
-        TableSchemaInfo newTableSchemaInfo = tableToChange.getNewTableSchemaInfo();
-        TableSchemaInfo oldTableSchemaInfo = tableToChange.getOldTableSchemaInfo();
+        TableChangeDifference tableToAlter = tablesToAlter.get(0);
+        TableSchemaInfo newTableSchemaInfo = tableToAlter.getNewTableSchemaInfo();
+        TableSchemaInfo oldTableSchemaInfo = tableToAlter.getOldTableSchemaInfo();
         ColumnMetadataDifference columnMetadataDifference = TableSchemaInfoComparator.compareColumnMetadatas(newTableSchemaInfo.getColumnMetadatas(), oldTableSchemaInfo.getColumnMetadatas());
         System.out.println(JsonSerializer.serialize(columnMetadataDifference));
         Assert.assertFalse(columnMetadataDifference.noChange());
         Assert.assertEquals(1, columnMetadataDifference.getColumnsToAdd().size());
-        Assert.assertTrue(columnMetadataDifference.getColumnsToChange().isEmpty());
+        Assert.assertTrue(columnMetadataDifference.getColumnsToAlter().isEmpty());
         Assert.assertTrue(columnMetadataDifference.getColumnsToRename().isEmpty());
-        Assert.assertTrue(columnMetadataDifference.getColumnsToRemove().isEmpty());
+        Assert.assertTrue(columnMetadataDifference.getColumnsToDrop().isEmpty());
     }
 
     /**
@@ -388,23 +388,23 @@ public class CompareTableSchemaInfosTest
 
         // region Detailed asserts.
         Assert.assertTrue(tableSchemaDifference.getTablesToRename().isEmpty());
-        Assert.assertTrue(tableSchemaDifference.getTablesToRemove().isEmpty());
+        Assert.assertTrue(tableSchemaDifference.getTablesToDrop().isEmpty());
         Assert.assertTrue(tableSchemaDifference.getTablesToAdd().isEmpty());
 
-        List<TableChangeDifference> tablesToChange = tableSchemaDifference.getTablesToChange();
-        Assert.assertEquals(1, tablesToChange.size());
+        List<TableChangeDifference> tablesToAlter = tableSchemaDifference.getTablesToAlter();
+        Assert.assertEquals(1, tablesToAlter.size());
 
-        TableChangeDifference tableToChange = tablesToChange.get(0);
-        TableSchemaInfo newTableSchemaInfo = tableToChange.getNewTableSchemaInfo();
-        TableSchemaInfo oldTableSchemaInfo = tableToChange.getOldTableSchemaInfo();
+        TableChangeDifference tableToAlter = tablesToAlter.get(0);
+        TableSchemaInfo newTableSchemaInfo = tableToAlter.getNewTableSchemaInfo();
+        TableSchemaInfo oldTableSchemaInfo = tableToAlter.getOldTableSchemaInfo();
         ColumnMetadataDifference columnMetadataDifference = TableSchemaInfoComparator.compareColumnMetadatas(newTableSchemaInfo.getColumnMetadatas(), oldTableSchemaInfo.getColumnMetadatas());
         System.out.println(JsonSerializer.serialize(columnMetadataDifference));
         Assert.assertFalse(columnMetadataDifference.noChange());
 
         // Column "name", from "VARCHAR(200)" to "VARCHAR(100)".
-        List<ColumnChangeDifference> columnsToChange = columnMetadataDifference.getColumnsToChange();
-        Assert.assertEquals(1, columnsToChange.size());
-        ColumnChangeDifference columnChangeDifference = columnsToChange.get(0);
+        List<ColumnChangeDifference> columnsToAlter = columnMetadataDifference.getColumnsToAlter();
+        Assert.assertEquals(1, columnsToAlter.size());
+        ColumnChangeDifference columnChangeDifference = columnsToAlter.get(0);
         Assert.assertEquals("name", columnChangeDifference.getName());
         Assert.assertEquals("VARCHAR(200)", columnChangeDifference.getOldColumnMetadata().getType());
         Assert.assertEquals("VARCHAR(100)", columnChangeDifference.getNewColumnMetadata().getType());
@@ -422,9 +422,9 @@ public class CompareTableSchemaInfosTest
         Assert.assertEquals("INT", columnMetadata.getType());
         Assert.assertFalse(columnMetadata.isNullable());
 
-        List<ColumnMetadata> columnsToRemove = columnMetadataDifference.getColumnsToRemove();
-        Assert.assertEquals(1, columnsToRemove.size());
-        ColumnMetadata columnMetadata2 = columnsToRemove.get(0);
+        List<ColumnMetadata> columnsToDrop = columnMetadataDifference.getColumnsToDrop();
+        Assert.assertEquals(1, columnsToDrop.size());
+        ColumnMetadata columnMetadata2 = columnsToDrop.get(0);
         Assert.assertEquals("gender", columnMetadata2.getName());
         Assert.assertEquals("VARCHAR(32767)", columnMetadata2.getType());
         Assert.assertTrue(columnMetadata2.isNullable());

@@ -37,7 +37,7 @@ public final class TableSchemaInfoComparator
 
         List<String> tablesWithNewName = new ArrayList<>();
         List<String> sameTableNames = new ArrayList<>();
-        List<TableChangeDifference> tablesToChange = new ArrayList<>();
+        List<TableChangeDifference> tablesToAlter = new ArrayList<>();
         List<TableRenameDifference> tablesToRename = new ArrayList<>();
 
         // 1st pass, find columns that have or do not have the same name.
@@ -62,7 +62,7 @@ public final class TableSchemaInfoComparator
                     tableChangeDifference.setName(tableName);
                     tableChangeDifference.setOldTableSchemaInfo(oldTableSchemaInfo);
                     tableChangeDifference.setNewTableSchemaInfo(newTableSchemaInfo);
-                    tablesToChange.add(tableChangeDifference);
+                    tablesToAlter.add(tableChangeDifference);
                 }
             }
         }
@@ -111,12 +111,12 @@ public final class TableSchemaInfoComparator
         // If there is any element in newTableSchemaInfoMap, then it is a new column.
         // And if there is any element in oldTableSchemaInfoMap, then it is a column to be removed.
         List<TableSchemaInfo> tablesToAdd = new ArrayList<>(newTableSchemaInfoMap.values());
-        List<TableSchemaInfo> tablesToRemove = new ArrayList<>(oldTableSchemaInfoMap.values());
+        List<TableSchemaInfo> tablesToDrop = new ArrayList<>(oldTableSchemaInfoMap.values());
 
         TableSchemaDifference tableSchemaDifference = new TableSchemaDifference();
         tableSchemaDifference.setTablesToAdd(tablesToAdd);
-        tableSchemaDifference.setTablesToRemove(tablesToRemove);
-        tableSchemaDifference.setTablesToChange(tablesToChange);
+        tableSchemaDifference.setTablesToDrop(tablesToDrop);
+        tableSchemaDifference.setTablesToAlter(tablesToAlter);
         tableSchemaDifference.setTablesToRename(tablesToRename);
         return tableSchemaDifference;
     }
@@ -128,7 +128,7 @@ public final class TableSchemaInfoComparator
 
         List<String> columnsWithNewName = new ArrayList<>();
         List<String> sameColumnNames = new ArrayList<>();
-        List<ColumnChangeDifference> columnsToChange = new ArrayList<>();
+        List<ColumnChangeDifference> columnsToAlter = new ArrayList<>();
         List<ColumnRenameDifference> columnsToRename = new ArrayList<>();
 
         // 1st pass, find columns that have or do not have the same name.
@@ -153,7 +153,7 @@ public final class TableSchemaInfoComparator
                     columnChangeDifference.setName(columnName);
                     columnChangeDifference.setOldColumnMetadata(oldColumnMetadata);
                     columnChangeDifference.setNewColumnMetadata(newColumnMetadata);
-                    columnsToChange.add(columnChangeDifference);
+                    columnsToAlter.add(columnChangeDifference);
                 }
             }
         }
@@ -203,13 +203,13 @@ public final class TableSchemaInfoComparator
         // If there is any element in newColumnMetadataMap, then it is a new column.
         // And if there is any element in oldColumnMetadataMap, then it is a column to be removed.
         List<ColumnMetadata> columnsToAdd = new ArrayList<>(newColumnMetadataMap.values());
-        List<ColumnMetadata> columnsToRemove = new ArrayList<>(oldColumnMetadataMap.values());
+        List<ColumnMetadata> columnsToDrop = new ArrayList<>(oldColumnMetadataMap.values());
 
         ColumnMetadataDifference columnMetadataDifference = new ColumnMetadataDifference();
-        columnMetadataDifference.setColumnsToChange(columnsToChange);
+        columnMetadataDifference.setColumnsToAlter(columnsToAlter);
         columnMetadataDifference.setColumnsToRename(columnsToRename);
         columnMetadataDifference.setColumnsToAdd(columnsToAdd);
-        columnMetadataDifference.setColumnsToRemove(columnsToRemove);
+        columnMetadataDifference.setColumnsToDrop(columnsToDrop);
         return columnMetadataDifference;
     }
 

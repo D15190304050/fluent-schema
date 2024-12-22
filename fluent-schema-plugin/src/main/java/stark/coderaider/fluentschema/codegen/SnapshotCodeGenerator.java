@@ -2,7 +2,6 @@ package stark.coderaider.fluentschema.codegen;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -58,8 +57,7 @@ public class SnapshotCodeGenerator
         // End of class.
         schemaSnapshotBuilder.append("}");
 
-        return schemaSnapshotBuilder.toString();
-//        return formatCode(schemaSnapshotBuilder.toString());
+        return CodeFormatter.formatCode(schemaSnapshotBuilder.toString());
     }
 
     public static void generateTableBuilderCode(StringBuilder tableBuilder, TableSchemaInfo tableSchemaInfo)
@@ -205,27 +203,5 @@ public class SnapshotCodeGenerator
         }
 
         tableBuilder.append(";");
-    }
-
-    public static String formatCode(String code) throws BadLocationException, MojoExecutionException
-    {
-        Map<String, String> options = new HashMap<>();
-        options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE, "1");
-        options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS, "1");
-        options.put("org.eclipse.jdt.core.formatter.tabulation.char", "space"); // 使用空格替代Tab
-        options.put("org.eclipse.jdt.core.formatter.tabulation.size", "4");
-
-        CodeFormatter formatter = ToolFactory.createCodeFormatter(options);
-        TextEdit edit = formatter.format(CodeFormatter.K_COMPILATION_UNIT, code, 0, code.length(), 0, null);
-
-        if (edit != null)
-        {
-            Document document = new Document(code);
-            edit.apply(document);
-            return document.get();
-        }
-
-        // Normally, this line of code is never executed.
-        throw new MojoExecutionException("Unable to format code.");
     }
 }

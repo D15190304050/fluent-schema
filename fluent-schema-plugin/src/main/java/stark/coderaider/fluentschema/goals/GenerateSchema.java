@@ -13,6 +13,9 @@ import stark.coderaider.fluentschema.parsing.EntityParser;
 
 import javax.tools.*;
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -66,8 +69,37 @@ public class GenerateSchema extends AbstractMojo
         }
 
         Class<?> schemaClass = getSchemaClass();
-        boolean needInitialHistoryTable = schemaClass != null;
+        List<TableSchemaInfo> oldTableSchemaInfos;
+        if (schemaClass == null)
+        {
+            boolean needToInitialHistoryTable = false;
+            oldTableSchemaInfos = new ArrayList<>();
+        }
+        else
+        {
+            boolean needToInitialHistoryTable = true;
 
+            String schemaClassName = schemaClass.getName();
+            try
+            {
+                Constructor<?> constructor = schemaClass.getConstructor();
+                Object schemaSnapshot = constructor.newInstance();
+                Method mGetTableSchemaInfos = schemaClass.getMethod("getTableSchemaInfos");
+                oldTableSchemaInfos = (List<TableSchemaInfo>) mGetTableSchemaInfos.invoke(schemaSnapshot);
+            }
+            catch (NoSuchMethodException e)
+            {
+                throw new MojoExecutionException("There is no method \"public List<TableSchemaInfo> getTableSchemaInfos()\" in " + schemaClassName, e);
+            }
+            catch (InvocationTargetException e)
+            {
+                throw new RuntimeException(e);
+            }
+            catch (InstantiationException | IllegalAccessException e)
+            {
+                throw new MojoExecutionException("Error instantiating " + schemaClassName, e);
+            }
+        }
 
     }
 
@@ -86,7 +118,7 @@ public class GenerateSchema extends AbstractMojo
         return null;
     }
 
-    private String getSchemaClassName() throws MojoExecutionException
+    private String getSchemaClassName()
     {
         getLog().info("Schema package: " + schemaPackage);
         String dataSourceClassName = NamingConverter.toClassLikeName(dataSourceName);
@@ -279,7 +311,7 @@ public class GenerateSchema extends AbstractMojo
         return classes;
     }
 
-    private String getClassName(File javaFile) throws Exception
+    private String getClassName(File javaFile)
     {
         String absolutePath = javaFile.getAbsolutePath();
         String sourceDirPath = sourceDirectory.getAbsolutePath();

@@ -9,10 +9,10 @@ import java.util.List;
 @Data
 public class ColumnMetadataDifference
 {
-    List<ColumnChangeDifference> columnsToChange;
+    List<ColumnChangeDifference> columnsToAlter;
     List<ColumnRenameDifference> columnsToRename;
     List<ColumnMetadata> columnsToAdd;
-    List<ColumnMetadata> columnsToRemove;
+    List<ColumnMetadata> columnsToDrop;
 
     /**
      * Returns {@code true} if there is no change on column metadata; otherwise, {@code false}.
@@ -20,9 +20,9 @@ public class ColumnMetadataDifference
      */
     public boolean noChange()
     {
-        return CollectionUtils.isEmpty(columnsToChange) &&
+        return CollectionUtils.isEmpty(columnsToAlter) &&
             CollectionUtils.isEmpty(columnsToRename) &&
             CollectionUtils.isEmpty(columnsToAdd) &&
-            CollectionUtils.isEmpty(columnsToRemove);
+            CollectionUtils.isEmpty(columnsToDrop);
     }
 }
