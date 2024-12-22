@@ -14,6 +14,7 @@ public class SchemaMigrationBuilder
     private final List<AlterColumnOperation> columnsToAlter;
     private final List<String> tablesToDrop;
     private final List<TableSchemaInfo> tablesToAdd;
+    private final List<RenameTableOperation> tablesToRename;
 
     public SchemaMigrationBuilder()
     {
@@ -23,6 +24,7 @@ public class SchemaMigrationBuilder
         columnsToAlter = new ArrayList<>();
         tablesToDrop = new ArrayList<>();
         tablesToAdd = new ArrayList<>();
+        tablesToRename = new ArrayList<>();
     }
 
     public void addColumn(String tableName, ColumnMetadata columnToAdd)
@@ -69,6 +71,14 @@ public class SchemaMigrationBuilder
         tablesToAdd.add(tableToAdd);
     }
 
+    public void renameTable(String oldTableName, String newTableName)
+    {
+        RenameTableOperation renameTableOperation = new RenameTableOperation();
+        renameTableOperation.setOldTableName(oldTableName);
+        renameTableOperation.setNewTableName(newTableName);
+        tablesToRename.add(renameTableOperation);
+    }
+
     public MigrationOperationInfo toMigrationOperationInfo()
     {
         MigrationOperationInfo migrationOperationInfo = new MigrationOperationInfo();
@@ -78,6 +88,7 @@ public class SchemaMigrationBuilder
         migrationOperationInfo.setColumnsToDrop(columnsToDrop);
         migrationOperationInfo.setColumnsToRename(columnsToRename);
         migrationOperationInfo.setColumnsToAlter(columnsToAlter);
+        migrationOperationInfo.setTablesToRename(tablesToRename);
         return migrationOperationInfo;
     }
 }

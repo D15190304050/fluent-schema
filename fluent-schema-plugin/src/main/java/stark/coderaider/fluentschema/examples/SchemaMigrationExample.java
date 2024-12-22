@@ -54,6 +54,8 @@ public class SchemaMigrationExample extends SchemaMigrationBase
             builder.comment("Blogs.");
             builder.engine("InnoDB");
         });
+
+        forwardBuilder.renameTable("person5", "person6");
     }
 
     @Override
@@ -106,6 +108,8 @@ public class SchemaMigrationExample extends SchemaMigrationBase
         });
 
         backwardBuilder.dropTable("blog");
+
+        backwardBuilder.renameTable("person6", "person5");
     }
 
     public static void main(String[] args)

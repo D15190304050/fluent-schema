@@ -6,20 +6,17 @@ import stark.coderaider.fluentschema.commons.annotations.*;
 import java.util.Date;
 
 @Table(name = "person_with_combination_key", namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
-public class PersonWithCombinationKey2
+public class PersonWithCombinationKey3
 {
     @PrimaryKey
     @AutoIncrement
     private long id;
 
-    @Key(name = "idx_name")
-    @Column(type = "VARCHAR(100)")
+    @Column(type = "VARCHAR(200)")
     private String name;
 
-    @Key(name = "idx_name", order = 1)
-    private String birthPlace;
+    @Key(name = "idx_name")
+    private String gender;
 
-    private Date birthdate;
-
-    private int age;
+    private Date birthday;
 }

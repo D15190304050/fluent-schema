@@ -4,12 +4,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Assert;
 import org.junit.Test;
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.parsing.differences.*;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
-import stark.coderaider.fluentschema.test.entities.Person;
-import stark.coderaider.fluentschema.test.entities.PersonWith2Keys;
-import stark.coderaider.fluentschema.test.entities.PersonWithCombinationKey;
-import stark.coderaider.fluentschema.test.entities.PersonWithCombinationKey2;
+import stark.coderaider.fluentschema.test.entities.*;
 import stark.dataworks.basic.data.json.JsonSerializer;
 
 import java.util.ArrayList;
@@ -429,5 +427,103 @@ public class CompareTableSchemaInfosTest
         Assert.assertEquals("VARCHAR(32767)", columnMetadata2.getType());
         Assert.assertTrue(columnMetadata2.isNullable());
         // endregion.
+    }
+
+    /**
+     * Case 13: Change comment, engine & key name.
+     * @throws MojoExecutionException
+     */
+    @Test
+    public void testCompareTableSchemaInfos13() throws MojoExecutionException
+    {
+        List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
+        List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
+
+        EntityParser entityParser = new EntityParser();
+        oldTableSchemaInfos.add(entityParser.parse(Person.class));
+        newTableSchemaInfos.add(entityParser.parse(Person.class));
+
+        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo tableSchemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey3.class);
+        tableSchemaInfoOfPerson3.setComment("Comment of PersonWithCombinationKey.");
+        tableSchemaInfoOfPerson3.setEngine("MyISAM");
+
+        newTableSchemaInfos.add(tableSchemaInfoOfPerson3);
+
+        TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
+        System.out.println(JsonSerializer.serialize(tableSchemaDifference));
+        Assert.assertFalse(tableSchemaDifference.noChange());
+
+        List<TableChangeDifference> tablesToAlter = tableSchemaDifference.getTablesToAlter();
+        TableChangeDifference tableToAlter = tablesToAlter.get(0);
+        TableSchemaInfo oldTableSchemaInfo = tableToAlter.getOldTableSchemaInfo();
+        TableSchemaInfo newTableSchemaInfo = tableToAlter.getNewTableSchemaInfo();
+
+        List<ColumnMetadata> oldColumnMetadatas = oldTableSchemaInfo.getColumnMetadatas();
+        List<ColumnMetadata> newColumnMetadatas = newTableSchemaInfo.getColumnMetadatas();
+        ColumnMetadataDifference columnMetadataDifference = TableSchemaInfoComparator.compareColumnMetadatas(newColumnMetadatas, oldColumnMetadatas);
+        Assert.assertFalse(columnMetadataDifference.noChange());
+
+        Assert.assertEquals(0, EditDistanceCalculator.editDistanceOfStringField(newTableSchemaInfo, oldTableSchemaInfo, TableSchemaInfo::getName));
+
+        Assert.assertEquals(newTableSchemaInfo.getPrimaryKeyMetadata(), oldTableSchemaInfo.getPrimaryKeyMetadata());
+        Assert.assertNotEquals(newTableSchemaInfo.getKeyMetadatas(), oldTableSchemaInfo.getKeyMetadatas());
+
+        Assert.assertEquals(1, EditDistanceCalculator.editDistanceOfStringField(newTableSchemaInfo, oldTableSchemaInfo, TableSchemaInfo::getComment));
+        Assert.assertEquals(1, EditDistanceCalculator.editDistanceOfStringField(newTableSchemaInfo, oldTableSchemaInfo, TableSchemaInfo::getEngine));
+    }
+
+    /**
+     * Case 14: Change key column.
+     * @throws MojoExecutionException
+     */
+    @Test
+    public void testCompareTableSchemaInfos14() throws MojoExecutionException
+    {
+        List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
+        List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
+
+        EntityParser entityParser = new EntityParser();
+        oldTableSchemaInfos.add(entityParser.parse(Person.class));
+        newTableSchemaInfos.add(entityParser.parse(Person.class));
+
+        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo tableSchemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey4.class);
+        newTableSchemaInfos.add(tableSchemaInfoOfPerson3);
+
+        TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
+        System.out.println(JsonSerializer.serialize(tableSchemaDifference));
+        Assert.assertFalse(tableSchemaDifference.noChange());
+
+        List<TableChangeDifference> tablesToAlter = tableSchemaDifference.getTablesToAlter();
+        TableChangeDifference tableToAlter = tablesToAlter.get(0);
+        TableSchemaInfo oldTableSchemaInfo = tableToAlter.getOldTableSchemaInfo();
+        TableSchemaInfo newTableSchemaInfo = tableToAlter.getNewTableSchemaInfo();
+
+        List<ColumnMetadata> oldColumnMetadatas = oldTableSchemaInfo.getColumnMetadatas();
+        List<ColumnMetadata> newColumnMetadatas = newTableSchemaInfo.getColumnMetadatas();
+        ColumnMetadataDifference columnMetadataDifference = TableSchemaInfoComparator.compareColumnMetadatas(newColumnMetadatas, oldColumnMetadatas);
+        Assert.assertTrue(columnMetadataDifference.noChange());
+
+        Assert.assertEquals(0, EditDistanceCalculator.editDistanceOfStringField(newTableSchemaInfo, oldTableSchemaInfo, TableSchemaInfo::getName));
+
+        Assert.assertEquals(newTableSchemaInfo.getPrimaryKeyMetadata(), oldTableSchemaInfo.getPrimaryKeyMetadata());
+        Assert.assertEquals(0, EditDistanceCalculator.editDistanceOfStringField(newTableSchemaInfo, oldTableSchemaInfo, TableSchemaInfo::getComment));
+        Assert.assertEquals(0, EditDistanceCalculator.editDistanceOfStringField(newTableSchemaInfo, oldTableSchemaInfo, TableSchemaInfo::getEngine));
+
+        List<KeyMetadata> newKeys = newTableSchemaInfo.getKeyMetadatas();
+        List<KeyMetadata> oldKeys = oldTableSchemaInfo.getKeyMetadatas();
+        Assert.assertNotEquals(newKeys, oldKeys);
+
+        KeyMetadata newKey = newKeys.get(0);
+        KeyMetadata oldKey = oldKeys.get(0);
+        List<String> newKeyColumns = newKey.getColumns();
+        List<String> oldKeyColumns = oldKey.getColumns();
+        Assert.assertEquals(newKey.getName(), oldKey.getName());
+        Assert.assertEquals(1, newKeyColumns.size());
+        Assert.assertEquals(2, oldKey.getColumns().size());
+        Assert.assertTrue(newKeyColumns.contains("name"));
+        Assert.assertTrue(oldKeyColumns.contains("name"));
+        Assert.assertTrue(oldKeyColumns.contains("birth_place"));
     }
 }

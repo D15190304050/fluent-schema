@@ -1,6 +1,7 @@
 package stark.coderaider.fluentschema.parsing;
 
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.schemas.PrimaryKeyMetadata;
 import stark.coderaider.fluentschema.parsing.differences.*;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 

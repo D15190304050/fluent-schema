@@ -15,4 +15,5 @@ public class MigrationOperationInfo
     private List<AlterColumnOperation> columnsToAlter;
     private List<String> tablesToDrop;
     private List<TableSchemaInfo> tablesToAdd;
+    private List<RenameTableOperation> tablesToRename;
 }
