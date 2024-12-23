@@ -2,14 +2,13 @@ package stark.coderaider.fluentschema.commons.schemas.operations;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
+import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AddKeyOperation extends MigrationOperationBase
+public class AddTableOperation extends MigrationOperationBase
 {
-    private String tableName;
-    private KeyMetadata keyMetadata;
+    private TableSchemaInfo tableSchemaInfo;
 
     @Override
     public String toSql()

@@ -1,6 +1,8 @@
 package stark.coderaider.fluentschema.commons.schemas;
 
-import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationInfo;
+import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationBase;
+
+import java.util.List;
 
 public abstract class SchemaMigrationBase
 {
@@ -17,13 +19,13 @@ public abstract class SchemaMigrationBase
 
     public abstract void backward();
 
-    public MigrationOperationInfo toForwardOperationInfo()
+    public List<MigrationOperationBase> toForwardOperations()
     {
-        return forwardBuilder.toMigrationOperationInfo();
+        return forwardBuilder.getMigrationOperations();
     }
 
-    public MigrationOperationInfo toBackwardOperationInfo()
+    public List<MigrationOperationBase> toBackwardOperations()
     {
-        return backwardBuilder.toMigrationOperationInfo();
+        return backwardBuilder.getMigrationOperations();
     }
 }

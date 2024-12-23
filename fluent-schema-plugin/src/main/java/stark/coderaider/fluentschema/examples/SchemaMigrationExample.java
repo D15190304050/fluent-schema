@@ -3,7 +3,7 @@ package stark.coderaider.fluentschema.examples;
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.commons.schemas.SchemaMigrationBase;
-import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationInfo;
+import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationBase;
 import stark.dataworks.basic.data.json.JsonSerializer;
 
 import java.util.List;
@@ -133,10 +133,10 @@ public class SchemaMigrationExample extends SchemaMigrationBase
         example.forward();
         example.backward();
 
-        MigrationOperationInfo forwardOperationInfo = example.toForwardOperationInfo();
-        System.out.println(JsonSerializer.serialize(forwardOperationInfo));
+        List<MigrationOperationBase> forwardOperations = example.toForwardOperations();
+        System.out.println(JsonSerializer.serialize(forwardOperations));
 
-        MigrationOperationInfo backwardOperationInfo = example.toBackwardOperationInfo();
-        System.out.println(JsonSerializer.serialize(backwardOperationInfo));
+        List<MigrationOperationBase> backwardOperations = example.toBackwardOperations();
+        System.out.println(JsonSerializer.serialize(backwardOperations));
     }
 }
