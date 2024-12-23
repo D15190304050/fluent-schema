@@ -103,18 +103,15 @@ public final class EditDistanceCalculator
             return 0;
 
         if (left == null && right != null)
-            return Integer.MAX_VALUE;
+            return 1;
 
         if (left != null && right == null)
-            return Integer.MAX_VALUE;
+            return 1;
 
         if (left.equals(right))
             return 0;
 
         int editDistance = 0;
-
-//        if (!left.getName().equals(right.getName()))
-//            editDistance++;
 
         if (!left.getType().equals(right.getType()))
             editDistance++;

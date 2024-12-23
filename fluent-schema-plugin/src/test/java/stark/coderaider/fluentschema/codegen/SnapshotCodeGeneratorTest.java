@@ -13,7 +13,7 @@ import java.util.List;
 public class SnapshotCodeGeneratorTest
 {
     @Test
-    public void generateTableBuilderCode() throws MojoExecutionException, BadLocationException
+    public void generateTableBuilderCode() throws MojoExecutionException
     {
         EntityParser parser = new EntityParser();
         TableSchemaInfo schemaInfoOfPerson = parser.parse(Person.class);

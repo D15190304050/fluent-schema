@@ -58,45 +58,55 @@ public final class TableBuilder
     private static void appendKeyBuilder(StringBuilder tableBuilder, KeyMetadata keyMetadata)
     {
         tableBuilder.append("builder.key()");
+        appendKeyBuilderBody(tableBuilder, keyMetadata);
+        tableBuilder.append(";");
+    }
 
+    public static void appendKeyBuilderBody(StringBuilder appender, KeyMetadata keyMetadata)
+    {
         // Key name.
-        tableBuilder
+        appender
             .append(".name(\"")
             .append(keyMetadata.getName())
             .append("\")");
 
         // Key columns.
         String joinedColumnNames = String.join("\", \"", keyMetadata.getColumns());
-        tableBuilder
+        appender
             .append(".columns(List.of(\"")
             .append(joinedColumnNames)
-            .append("\"));");
+            .append("\"))");
     }
 
     private static void appendColumnBuilder(StringBuilder tableBuilder, ColumnMetadata columnMetadata)
     {
         tableBuilder.append("builder.column()");
+        appendColumnBuilderBody(tableBuilder, columnMetadata);
+        tableBuilder.append(";");
+    }
 
+    public static void appendColumnBuilderBody(StringBuilder appender, ColumnMetadata columnMetadata)
+    {
         // Column name.
-        tableBuilder
+        appender
             .append(".name(\"")
             .append(columnMetadata.getName())
             .append("\")");
 
         // Column data type.
-        tableBuilder
+        appender
             .append(".type(\"")
             .append(columnMetadata.getType())
             .append("\")");
 
         // Nullable.
-        tableBuilder
+        appender
             .append(".nullable(")
             .append(columnMetadata.isNullable())
             .append(")");
 
         // Unique.
-        tableBuilder
+        appender
             .append(".unique(")
             .append(columnMetadata.isUnique())
             .append(")");
@@ -105,7 +115,7 @@ public final class TableBuilder
         String comment = columnMetadata.getComment();
         if (StringUtils.hasText(comment))
         {
-            tableBuilder
+            appender
                 .append(".comment(\"")
                 .append(comment)
                 .append("\")");
@@ -115,7 +125,7 @@ public final class TableBuilder
         String defaultValue = columnMetadata.getDefaultValue();
         if (StringUtils.hasText(defaultValue))
         {
-            tableBuilder
+            appender
                 .append(".defaultValue(\"")
                 .append(defaultValue)
                 .append("\")");
@@ -125,7 +135,7 @@ public final class TableBuilder
         String onUpdate = columnMetadata.getOnUpdate();
         if (StringUtils.hasText(onUpdate))
         {
-            tableBuilder
+            appender
                 .append(".onUpdate(\"")
                 .append(onUpdate)
                 .append("\")");
@@ -135,14 +145,12 @@ public final class TableBuilder
         AutoIncrementMetadata autoIncrement = columnMetadata.getAutoIncrement();
         if (autoIncrement != null)
         {
-            tableBuilder
+            appender
                 .append(".autoIncrement(")
                 .append(autoIncrement.getBegin())
                 .append(", ")
                 .append(autoIncrement.getIncrement())
                 .append(")");
         }
-
-        tableBuilder.append(";");
     }
 }
