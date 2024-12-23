@@ -1,6 +1,7 @@
 package stark.coderaider.fluentschema.examples;
 
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
+import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.commons.schemas.SchemaMigrationBase;
 import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationInfo;
 import stark.dataworks.basic.data.json.JsonSerializer;
@@ -56,6 +57,13 @@ public class SchemaMigrationExample extends SchemaMigrationBase
         });
 
         forwardBuilder.renameTable("person5", "person6");
+
+        forwardBuilder.addKey("person6", KeyMetadata.builder()
+            .name("k1")
+            .columns(List.of("c1", "c2"))
+            .build());
+
+        forwardBuilder.dropKey("person6", "k2");
     }
 
     @Override
@@ -110,6 +118,13 @@ public class SchemaMigrationExample extends SchemaMigrationBase
         backwardBuilder.dropTable("blog");
 
         backwardBuilder.renameTable("person6", "person5");
+
+        backwardBuilder.dropKey("person6", "k1");
+
+        backwardBuilder.addKey("person6", KeyMetadata.builder()
+            .name("k2")
+            .columns(List.of("c1", "c2"))
+            .build());
     }
 
     public static void main(String[] args)

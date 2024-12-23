@@ -251,7 +251,7 @@ public final class TableSchemaInfoComparator
             keysToDrop.add(oldKeyMetadataMap.get(keyName));
 
         List<KeyAlterDifference> keysToAlter = new ArrayList<>();
-        for (String newKeyName : namesOfKeysToAdd)
+        for (String newKeyName : newKeyNames)
         {
             if (!namesOfKeysToAdd.contains(newKeyName) && !namesOfKeysToDrop.contains(newKeyName))
             {

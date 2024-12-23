@@ -8,23 +8,20 @@ import java.util.function.Consumer;
 
 public class SchemaMigrationBuilder
 {
-    private final List<AddColumnOperation> columnsToAdd;
-    private final List<DropColumnOperation> columnsToDrop;
-    private final List<RenameColumnOperation> columnsToRename;
-    private final List<AlterColumnOperation> columnsToAlter;
-    private final List<String> tablesToDrop;
-    private final List<TableSchemaInfo> tablesToAdd;
-    private final List<RenameTableOperation> tablesToRename;
+    private MigrationOperationInfo migrationOperationInfo;
 
     public SchemaMigrationBuilder()
     {
-        columnsToAdd = new ArrayList<>();
-        columnsToDrop = new ArrayList<>();
-        columnsToRename = new ArrayList<>();
-        columnsToAlter = new ArrayList<>();
-        tablesToDrop = new ArrayList<>();
-        tablesToAdd = new ArrayList<>();
-        tablesToRename = new ArrayList<>();
+        migrationOperationInfo = new MigrationOperationInfo();
+        migrationOperationInfo.setColumnsToAdd(new ArrayList<>());
+        migrationOperationInfo.setColumnsToDrop(new ArrayList<>());
+        migrationOperationInfo.setColumnsToRename(new ArrayList<>());
+        migrationOperationInfo.setColumnsToAlter(new ArrayList<>());
+        migrationOperationInfo.setTablesToDrop(new ArrayList<>());
+        migrationOperationInfo.setTablesToAdd(new ArrayList<>());
+        migrationOperationInfo.setTablesToRename(new ArrayList<>());
+        migrationOperationInfo.setKeysToDrop(new ArrayList<>());
+        migrationOperationInfo.setKeysToAdd(new ArrayList<>());
     }
 
     public void addColumn(String tableName, ColumnMetadata columnToAdd)
@@ -32,7 +29,7 @@ public class SchemaMigrationBuilder
         AddColumnOperation addColumnOperation = new AddColumnOperation();
         addColumnOperation.setTableName(tableName);
         addColumnOperation.setColumnMetadata(columnToAdd);
-        columnsToAdd.add(addColumnOperation);
+        migrationOperationInfo.getColumnsToAdd().add(addColumnOperation);
     }
 
     public void dropColumn(String tableName, String columnName)
@@ -40,7 +37,7 @@ public class SchemaMigrationBuilder
         DropColumnOperation dropColumnOperation = new DropColumnOperation();
         dropColumnOperation.setTableName(tableName);
         dropColumnOperation.setColumnName(columnName);
-        columnsToDrop.add(dropColumnOperation);
+        migrationOperationInfo.getColumnsToDrop().add(dropColumnOperation);
     }
 
     public void renameColumn(String tableName, String oldColumnName, String newColumnName)
@@ -49,26 +46,42 @@ public class SchemaMigrationBuilder
         renameColumnOperation.setTableName(tableName);
         renameColumnOperation.setOldColumnName(oldColumnName);
         renameColumnOperation.setNewColumnName(newColumnName);
-        columnsToRename.add(renameColumnOperation);
+        migrationOperationInfo.getColumnsToRename().add(renameColumnOperation);
     }
 
-    public void alterColumn(String table, ColumnMetadata columnToAlter)
+    public void alterColumn(String tableName, ColumnMetadata columnToAlter)
     {
         AlterColumnOperation alterColumnOperation = new AlterColumnOperation();
-        alterColumnOperation.setTableName(table);
+        alterColumnOperation.setTableName(tableName);
         alterColumnOperation.setColumnMetadata(columnToAlter);
-        columnsToAlter.add(alterColumnOperation);
+        migrationOperationInfo.getColumnsToAlter().add(alterColumnOperation);
     }
 
     public void dropTable(String tableName)
     {
-        tablesToDrop.add(tableName);
+        migrationOperationInfo.getTablesToDrop().add(tableName);
     }
 
     public void addTable(String name, Consumer<TableSchemaBuilder> consumer)
     {
         TableSchemaInfo tableToAdd = TableSchemaBuilder.build(name, consumer);
-        tablesToAdd.add(tableToAdd);
+        migrationOperationInfo.getTablesToAdd().add(tableToAdd);
+    }
+
+    public void addKey(String tableName, KeyMetadata keyToAdd)
+    {
+        AddKeyOperation addKeyOperation = new AddKeyOperation();
+        addKeyOperation.setTableName(tableName);
+        addKeyOperation.setKeyMetadata(keyToAdd);
+        migrationOperationInfo.getKeysToAdd().add(addKeyOperation);
+    }
+
+    public void dropKey(String tableName, String keyName)
+    {
+        DropKeyOperation dropKeyOperation = new DropKeyOperation();
+        dropKeyOperation.setTableName(tableName);
+        dropKeyOperation.setKeyName(keyName);
+        migrationOperationInfo.getKeysToDrop().add(dropKeyOperation);
     }
 
     public void renameTable(String oldTableName, String newTableName)
@@ -76,19 +89,11 @@ public class SchemaMigrationBuilder
         RenameTableOperation renameTableOperation = new RenameTableOperation();
         renameTableOperation.setOldTableName(oldTableName);
         renameTableOperation.setNewTableName(newTableName);
-        tablesToRename.add(renameTableOperation);
+        migrationOperationInfo.getTablesToRename().add(renameTableOperation);
     }
 
     public MigrationOperationInfo toMigrationOperationInfo()
     {
-        MigrationOperationInfo migrationOperationInfo = new MigrationOperationInfo();
-        migrationOperationInfo.setTablesToAdd(tablesToAdd);
-        migrationOperationInfo.setTablesToDrop(tablesToDrop);
-        migrationOperationInfo.setColumnsToAdd(columnsToAdd);
-        migrationOperationInfo.setColumnsToDrop(columnsToDrop);
-        migrationOperationInfo.setColumnsToRename(columnsToRename);
-        migrationOperationInfo.setColumnsToAlter(columnsToAlter);
-        migrationOperationInfo.setTablesToRename(tablesToRename);
         return migrationOperationInfo;
     }
 }
