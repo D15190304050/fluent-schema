@@ -40,6 +40,7 @@ public class SchemaMigrationCodeGenerator
         buildForwardMethod(schemaMigrationBuilder, tableSchemaDifference);
 
         // Backward.
+        buildBackwardMethod(schemaMigrationBuilder, tableSchemaDifference);
 
         // End of class.
         schemaMigrationBuilder.append("}");
@@ -118,7 +119,7 @@ public class SchemaMigrationCodeGenerator
             List<ColumnAlterDifference> columnsToAlter = columnMetadataDifference.getColumnsToAlter();
             List<ColumnRenameDifference> columnsToRename = columnMetadataDifference.getColumnsToRename();
 
-            for (KeyMetadata keyMetadata : keysToDrop)
+            for (KeyMetadata keyToDrop : keysToDrop)
             {
                 schemaMigrationBuilder
                     .append("forwardBuilder.dropKey(\"")
@@ -126,7 +127,7 @@ public class SchemaMigrationCodeGenerator
                     .append("\"")
                     .append(", ")
                     .append("\"")
-                    .append(keyMetadata.getName())
+                    .append(keyToDrop.getName())
                     .append("\");");
             }
 
@@ -183,7 +184,7 @@ public class SchemaMigrationCodeGenerator
 
                 schemaMigrationBuilder
                     .append(".build()")
-                    .append("\");");
+                    .append(");");
             }
 
             for (ColumnRenameDifference columnToRename : columnsToRename)
@@ -237,8 +238,156 @@ public class SchemaMigrationCodeGenerator
         schemaMigrationBuilder.append("}");
     }
 
+    // backward() must have a completely opposite (reversed) direction of forward().
     public static void buildBackwardMethod(StringBuilder schemaMigrationBuilder, TableSchemaDifference tableSchemaDifference)
     {
+        // Method declaration.
+        schemaMigrationBuilder
+            .append("@Override")
+            .append(" ")
+            .append("public void backward()")
+            .append("{");
 
+        // Tables to alter.
+        // Orders:
+        // 1. Drop new keys.
+        // 2. Alter columns.
+        // 3. Add old keys.
+        List<TableChangeDifference> tablesToAlter = tableSchemaDifference.getTablesToAlter();
+        for (TableChangeDifference tableChangeDifference : tablesToAlter)
+        {
+            // TODO: optimize the duplicate here.
+            String tableName = tableChangeDifference.getName();
+            TableSchemaInfo oldTableSchemaInfo = tableChangeDifference.getOldTableSchemaInfo();
+            TableSchemaInfo newTableSchemaInfo = tableChangeDifference.getNewTableSchemaInfo();
+
+            KeyMetadataDifference keyMetadataDifference = TableSchemaInfoComparator.compareKeyMetadatas(newTableSchemaInfo.getKeyMetadatas(), oldTableSchemaInfo.getKeyMetadatas());
+            List<KeyMetadata> keysToDrop = keyMetadataDifference.getKeysToDrop();
+            List<KeyMetadata> keysToAdd = keyMetadataDifference.getKeysToAdd();
+            List<KeyAlterDifference> keysToAlter = keyMetadataDifference.getKeysToAlter();
+
+            ColumnMetadataDifference columnMetadataDifference = TableSchemaInfoComparator.compareColumnMetadatas(newTableSchemaInfo.getColumnMetadatas(), oldTableSchemaInfo.getColumnMetadatas());
+            List<ColumnMetadata> columnsToDrop = columnMetadataDifference.getColumnsToDrop();
+            List<ColumnMetadata> columnsToAdd = columnMetadataDifference.getColumnsToAdd();
+            List<ColumnAlterDifference> columnsToAlter = columnMetadataDifference.getColumnsToAlter();
+            List<ColumnRenameDifference> columnsToRename = columnMetadataDifference.getColumnsToRename();
+
+            for (KeyMetadata keyToAdd : keysToAdd)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.dropKey(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("\"")
+                    .append(keyToAdd.getName())
+                    .append("\");");
+            }
+
+            for (KeyAlterDifference keyToAlter : keysToAlter)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.dropKey(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("\"")
+                    .append(keyToAlter.getName())
+                    .append("\");");
+            }
+
+            for (ColumnRenameDifference columnToRename : columnsToRename)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.renameColumn(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("\"")
+                    .append(columnToRename.getNewName())
+                    .append("\"")
+                    .append(", ")
+                    .append("\"")
+                    .append(columnToRename.getOldName())
+                    .append("\");");
+            }
+
+            for (ColumnAlterDifference columnToAlter : columnsToAlter)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.alterColumn(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("ColumnMetadata.builder()");
+
+                TableBuilder.appendColumnBuilderBody(schemaMigrationBuilder, columnToAlter.getOldColumnMetadata());
+
+                schemaMigrationBuilder
+                    .append(".build()")
+                    .append(");");
+            }
+
+            for (ColumnMetadata columnToAdd : columnsToAdd)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.dropColumn(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("\"")
+                    .append(columnToAdd.getName())
+                    .append("\");");
+            }
+
+            for (ColumnMetadata columnToDrop : columnsToDrop)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.addColumn(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("ColumnMetadata.builder()");
+
+                TableBuilder.appendColumnBuilderBody(schemaMigrationBuilder, columnToDrop);
+
+                schemaMigrationBuilder
+                    .append(".build()")
+                    .append(");");
+            }
+
+            for (KeyAlterDifference keyToAlter : keysToAlter)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.addKey(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("KeyMetadata.builder()");
+
+                TableBuilder.appendKeyBuilderBody(schemaMigrationBuilder, keyToAlter.getOldKeyMetadata());
+
+                schemaMigrationBuilder
+                    .append(".build());");
+            }
+
+            for (KeyMetadata keyToDrop : keysToDrop)
+            {
+                schemaMigrationBuilder
+                    .append("backwardBuilder.addKey(\"")
+                    .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("KeyMetadata.builder()");
+
+                TableBuilder.appendKeyBuilderBody(schemaMigrationBuilder, keyToDrop);
+
+                schemaMigrationBuilder
+                    .append(".build());");
+            }
+        }
+
+        // Method end.
+        schemaMigrationBuilder.append("}");
     }
 }
