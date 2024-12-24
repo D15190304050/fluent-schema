@@ -2,22 +2,19 @@ package stark.coderaider.fluentschema.test.entities.migration;
 
 import lombok.Data;
 import stark.coderaider.fluentschema.commons.NamingConvention;
+import stark.coderaider.fluentschema.commons.annotations.Column;
 import stark.coderaider.fluentschema.commons.annotations.Key;
 import stark.coderaider.fluentschema.commons.annotations.PrimaryKey;
 import stark.coderaider.fluentschema.commons.annotations.Table;
 
-import java.util.Date;
-
-/**
- * New person table.
- */
-@Table(name = "person", namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
 @Data
-public class P2
+@Table(name = "t_alter_column_type", namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
+public class TBeforeAlterColumn
 {
     @PrimaryKey
     private long id;
 
-    @Key(name = "idx_birth_date")
-    private Date birthDate;
+    @Key(name = "idx_name")
+    @Column(type = "VARCHAR(200)")
+    private String name;
 }

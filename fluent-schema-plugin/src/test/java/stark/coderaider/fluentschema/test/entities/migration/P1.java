@@ -6,6 +6,9 @@ import stark.coderaider.fluentschema.commons.annotations.Key;
 import stark.coderaider.fluentschema.commons.annotations.PrimaryKey;
 import stark.coderaider.fluentschema.commons.annotations.Table;
 
+/**
+ * Old person table.
+ */
 @Table(name = "person", namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
 @Data
 public class P1

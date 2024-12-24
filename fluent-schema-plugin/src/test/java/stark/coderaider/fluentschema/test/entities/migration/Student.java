@@ -5,6 +5,9 @@ import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.annotations.PrimaryKey;
 import stark.coderaider.fluentschema.commons.annotations.Table;
 
+/**
+ * Old student table, will be renamed to teacher.
+ */
 @Table(namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
 @Data
 public class Student

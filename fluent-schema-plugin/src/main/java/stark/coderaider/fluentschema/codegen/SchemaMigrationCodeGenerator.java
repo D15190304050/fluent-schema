@@ -387,6 +387,45 @@ public class SchemaMigrationCodeGenerator
             }
         }
 
+        // Tables to rename.
+        List<TableRenameDifference> tablesToRename = tableSchemaDifference.getTablesToRename();
+        for (TableRenameDifference tableRenameDifference : tablesToRename)
+        {
+            schemaMigrationBuilder
+                .append("backwardBuilder.renameTable(\"")
+                .append(tableRenameDifference.getNewName())
+                .append("\"")
+                .append(", ")
+                .append("\"")
+                .append(tableRenameDifference.getOldName())
+                .append("\");");
+        }
+
+        // Tables to drop.
+        List<TableSchemaInfo> tablesToDrop = tableSchemaDifference.getTablesToDrop();
+        for (TableSchemaInfo tableSchemaInfo : tablesToDrop)
+        {
+            schemaMigrationBuilder
+                .append("backwardBuilder.addTable(\"")
+                .append(tableSchemaInfo.getName())
+                .append("\", builder ->{");
+
+            TableBuilder.build(schemaMigrationBuilder, tableSchemaInfo);
+
+            schemaMigrationBuilder
+                .append("});");
+        }
+
+        // Tables to add.
+        List<TableSchemaInfo> tablesToAdd = tableSchemaDifference.getTablesToAdd();
+        for (TableSchemaInfo tableSchemaInfo : tablesToAdd)
+        {
+            schemaMigrationBuilder
+                .append("backwardBuilder.dropTable(\"")
+                .append(tableSchemaInfo.getName())
+                .append("\");");
+        }
+
         // Method end.
         schemaMigrationBuilder.append("}");
     }

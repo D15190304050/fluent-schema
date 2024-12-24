@@ -6,18 +6,13 @@ import stark.coderaider.fluentschema.commons.annotations.Key;
 import stark.coderaider.fluentschema.commons.annotations.PrimaryKey;
 import stark.coderaider.fluentschema.commons.annotations.Table;
 
-import java.util.Date;
-
-/**
- * New person table.
- */
-@Table(name = "person", namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
 @Data
-public class P2
+@Table(name = "t_alter_column", namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE)
+public class TBeforeRenameColumn
 {
     @PrimaryKey
     private long id;
 
-    @Key(name = "idx_birth_date")
-    private Date birthDate;
+    @Key(name = "idx_name")
+    private String name;
 }
