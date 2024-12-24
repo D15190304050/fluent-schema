@@ -35,12 +35,10 @@ public class TableSchemaBuilder
         if (primaryKeyMetadataBuilder != null)
             tableSchemaInfo.setPrimaryKeyMetadata(primaryKeyMetadataBuilder.build());
 
+        List<KeyMetadata> keyMetadata = new ArrayList<>();
+        tableSchemaInfo.setKeyMetadatas(keyMetadata);
         if (!keyMetadataBuilders.isEmpty())
-        {
-            List<KeyMetadata> keyMetadata = new ArrayList<>();
             keyMetadataBuilders.forEach(x -> keyMetadata.add(x.build()));
-            tableSchemaInfo.setKeyMetadatas(keyMetadata);
-        }
 
         return tableSchemaInfo;
     }

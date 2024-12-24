@@ -12,6 +12,6 @@ public class DropTableOperation extends MigrationOperationBase
     @Override
     public String toSql()
     {
-        return "";
+        return "DROP TABLE `" + tableName + "`;";
     }
 }

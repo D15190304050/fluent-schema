@@ -410,8 +410,8 @@ public class CompareTableSchemaInfosTest
         List<ColumnRenameDifference> columnsToRename = columnMetadataDifference.getColumnsToRename();
         Assert.assertEquals(1, columnsToRename.size());
         ColumnRenameDifference columnRenameDifference = columnsToRename.get(0);
-        Assert.assertEquals("birthday", columnRenameDifference.getOldName());
-        Assert.assertEquals("birthdate", columnRenameDifference.getNewName());
+        Assert.assertEquals("birthday", columnRenameDifference.getOldColumnMetadata().getName());
+        Assert.assertEquals("birthdate", columnRenameDifference.getNewColumnMetadata().getName());
 
         List<ColumnMetadata> columnsToAdd = columnMetadataDifference.getColumnsToAdd();
         Assert.assertEquals(1, columnsToAdd.size());

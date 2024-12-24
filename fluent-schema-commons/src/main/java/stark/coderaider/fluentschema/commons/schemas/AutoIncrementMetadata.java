@@ -8,5 +8,4 @@ import lombok.Data;
 public class AutoIncrementMetadata
 {
     private int begin;
-    private int increment;
 }

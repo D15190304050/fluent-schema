@@ -179,8 +179,8 @@ public final class TableSchemaInfoComparator
                     if (editDistance == 0)
                     {
                         ColumnRenameDifference columnRenameDifference = new ColumnRenameDifference();
-                        columnRenameDifference.setNewName(newColumnName);
-                        columnRenameDifference.setOldName(oldColumnName);
+                        columnRenameDifference.setNewColumnMetadata(newColumnMetadata);
+                        columnRenameDifference.setOldColumnMetadata(oldColumnMetadata);
                         columnsToRename.add(columnRenameDifference);
                     }
                 }
@@ -190,8 +190,8 @@ public final class TableSchemaInfoComparator
         // 4th pass, remove columns that need to be renamed from 2 maps & columnsWithNewName.
         for (ColumnRenameDifference columnRenameDifference : columnsToRename)
         {
-            String oldColumnName = columnRenameDifference.getOldName();
-            String newColumnName = columnRenameDifference.getNewName();
+            String oldColumnName = columnRenameDifference.getOldColumnMetadata().getName();
+            String newColumnName = columnRenameDifference.getNewColumnMetadata().getName();
 
 //            columnsWithNewName.remove(newColumnName);
             oldColumnMetadataMap.remove(oldColumnName);
@@ -216,7 +216,7 @@ public final class TableSchemaInfoComparator
     {
         for (ColumnRenameDifference columnChangeDifference : columnsToRename)
         {
-            if (columnChangeDifference.getOldName().equals(oldColumnName))
+            if (columnChangeDifference.getOldColumnMetadata().getName().equals(oldColumnName))
                 return true;
         }
         return false;

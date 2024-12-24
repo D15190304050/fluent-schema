@@ -17,7 +17,7 @@ public class SchemaSnapshotExample extends SchemaSnapshotBase
                 .name("id")
                 .type("BIGINT")
                 .comment("ID of the blog.")
-                .autoIncrement(1, 1);
+                .autoIncrement(1);
 
             builder.column()
                 .name("title")
@@ -44,7 +44,7 @@ public class SchemaSnapshotExample extends SchemaSnapshotBase
                 .type("BIGINT")
                 .nullable(false)
                 .unique(false)
-                .autoIncrement(1, 1);
+                .autoIncrement(1);
             builder.column()
                 .name("name")
                 .type("VARCHAR(200)")

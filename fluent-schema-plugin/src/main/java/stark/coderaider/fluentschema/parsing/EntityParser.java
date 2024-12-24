@@ -161,7 +161,7 @@ public class EntityParser
                         throw new MojoExecutionException("Auto increment is only supported for primary key or unique columns. Field = " + field.getName() + ", (class = " + entityClassName + ").");
 
                     hasAutoIncrement = true;
-                    columnMetadata.setAutoIncrement(new AutoIncrementMetadata(autoIncrement.begin(), autoIncrement.increment()));
+                    columnMetadata.setAutoIncrement(new AutoIncrementMetadata(autoIncrement.begin()));
                 }
 
                 // Keys.

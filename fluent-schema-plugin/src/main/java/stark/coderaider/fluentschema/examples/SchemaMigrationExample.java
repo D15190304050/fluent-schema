@@ -21,12 +21,10 @@ public class SchemaMigrationExample extends SchemaMigrationBase
 
         forwardBuilder.dropColumn("person2", "birth_place");
 
-        forwardBuilder.alterColumn("person2", ColumnMetadata.builder()
+        forwardBuilder.alterColumn("person2", "gender", ColumnMetadata.builder()
             .name("gender")
             .type("VARCHAR(200)")
             .build());
-
-        forwardBuilder.renameColumn("person2", "birthday", "birthdate");
 
         forwardBuilder.dropTable("person3");
 
@@ -36,7 +34,7 @@ public class SchemaMigrationExample extends SchemaMigrationBase
                 .name("id")
                 .type("BIGINT")
                 .comment("ID of the blog.")
-                .autoIncrement(1, 1);
+                .autoIncrement(1);
 
             builder.column()
                 .name("title")
@@ -76,12 +74,10 @@ public class SchemaMigrationExample extends SchemaMigrationBase
             .type("VARCHAR(200)")
             .build());
 
-        backwardBuilder.alterColumn("person2", ColumnMetadata.builder()
+        backwardBuilder.alterColumn("person2", "gender", ColumnMetadata.builder()
             .name("gender")
             .type("VARCHAR(100)")
             .build());
-
-        backwardBuilder.renameColumn("person2", "birthdate", "birthday");
 
         backwardBuilder.addTable("person3", builder ->
         {
@@ -90,7 +86,7 @@ public class SchemaMigrationExample extends SchemaMigrationBase
                 .type("BIGINT")
                 .nullable(false)
                 .unique(false)
-                .autoIncrement(1, 1);
+                .autoIncrement(1);
             builder.column()
                 .name("name")
                 .type("VARCHAR(200)")

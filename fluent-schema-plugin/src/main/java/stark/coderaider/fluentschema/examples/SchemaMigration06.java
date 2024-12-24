@@ -3,6 +3,7 @@ package stark.coderaider.fluentschema.examples;
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.commons.schemas.SchemaMigrationBase;
+import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationBase;
 
 import java.util.List;
 
@@ -60,5 +61,14 @@ public class SchemaMigration06 extends SchemaMigrationBase
         backwardBuilder.dropTable("person");
         backwardBuilder.dropTable("t_add");
         backwardBuilder.dropTable("t_alter_column");
+    }
+
+    public static void main(String[] args)
+    {
+        SchemaMigration06 schemaMigration06 = new SchemaMigration06();
+        schemaMigration06.forward();
+        List<MigrationOperationBase> forwardOperations = schemaMigration06.toForwardOperations();
+        for (MigrationOperationBase forwardOperation : forwardOperations)
+            System.out.println(forwardOperation.toSql());
     }
 }

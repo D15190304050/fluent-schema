@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 
+import java.text.MessageFormat;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DropKeyOperation extends MigrationOperationBase
@@ -14,6 +16,12 @@ public class DropKeyOperation extends MigrationOperationBase
     @Override
     public String toSql()
     {
-        return "";
+        return MessageFormat.format(
+            """
+                ALTER TABLE `{0}` DROP KEY `{1}`;
+                """,
+            tableName,
+            keyName
+        ).trim();
     }
 }

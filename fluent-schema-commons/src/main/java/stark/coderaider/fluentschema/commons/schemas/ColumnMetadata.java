@@ -18,9 +18,9 @@ public class ColumnMetadata
 
     public static class ColumnMetadataBuilder
     {
-        public ColumnMetadataBuilder autoIncrement(int begin, int increment)
+        public ColumnMetadataBuilder autoIncrement(int begin)
         {
-            this.autoIncrement = new AutoIncrementMetadata(begin, increment);
+            this.autoIncrement = new AutoIncrementMetadata(begin);
             return this;
         }
     }

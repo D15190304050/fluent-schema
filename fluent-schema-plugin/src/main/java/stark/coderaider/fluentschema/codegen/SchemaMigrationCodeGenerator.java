@@ -178,6 +178,10 @@ public class SchemaMigrationCodeGenerator
                     .append(tableName)
                     .append("\"")
                     .append(", ")
+                    .append("\"")
+                    .append(columnToAlter.getOldColumnMetadata().getName())
+                    .append("\"")
+                    .append(", ")
                     .append("ColumnMetadata.builder()");
 
                 TableBuilder.appendColumnBuilderBody(schemaMigrationBuilder, columnToAlter.getNewColumnMetadata());
@@ -190,17 +194,21 @@ public class SchemaMigrationCodeGenerator
             for (ColumnRenameDifference columnToRename : columnsToRename)
             {
                 schemaMigrationBuilder
-                    .append("forwardBuilder.renameColumn(\"")
+                    .append("forwardBuilder.alterColumn(\"")
                     .append(tableName)
                     .append("\"")
                     .append(", ")
                     .append("\"")
-                    .append(columnToRename.getOldName())
+                    .append(columnToRename.getOldColumnMetadata().getName())
                     .append("\"")
                     .append(", ")
-                    .append("\"")
-                    .append(columnToRename.getNewName())
-                    .append("\");");
+                    .append("ColumnMetadata.builder()");
+
+                TableBuilder.appendColumnBuilderBody(schemaMigrationBuilder, columnToRename.getNewColumnMetadata());
+
+                schemaMigrationBuilder
+                    .append(".build()")
+                    .append(");");
             }
 
             for (KeyAlterDifference keyToAlter : keysToAlter)
@@ -299,17 +307,21 @@ public class SchemaMigrationCodeGenerator
             for (ColumnRenameDifference columnToRename : columnsToRename)
             {
                 schemaMigrationBuilder
-                    .append("backwardBuilder.renameColumn(\"")
+                    .append("backwardBuilder.alterColumn(\"")
                     .append(tableName)
                     .append("\"")
                     .append(", ")
                     .append("\"")
-                    .append(columnToRename.getNewName())
+                    .append(columnToRename.getNewColumnMetadata().getName())
                     .append("\"")
                     .append(", ")
-                    .append("\"")
-                    .append(columnToRename.getOldName())
-                    .append("\");");
+                    .append("ColumnMetadata.builder()");
+
+                TableBuilder.appendColumnBuilderBody(schemaMigrationBuilder, columnToRename.getOldColumnMetadata());
+
+                schemaMigrationBuilder
+                    .append(".build()")
+                    .append(");");
             }
 
             for (ColumnAlterDifference columnToAlter : columnsToAlter)
@@ -317,6 +329,10 @@ public class SchemaMigrationCodeGenerator
                 schemaMigrationBuilder
                     .append("backwardBuilder.alterColumn(\"")
                     .append(tableName)
+                    .append("\"")
+                    .append(", ")
+                    .append("\"")
+                    .append(columnToAlter.getNewColumnMetadata().getName())
                     .append("\"")
                     .append(", ")
                     .append("ColumnMetadata.builder()");

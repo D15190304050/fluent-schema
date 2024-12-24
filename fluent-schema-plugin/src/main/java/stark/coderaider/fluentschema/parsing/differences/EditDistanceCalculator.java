@@ -160,9 +160,6 @@ public final class EditDistanceCalculator
         if (left.getBegin() != right.getBegin())
             return 1;
 
-        if (left.getIncrement() != right.getIncrement())
-            return 1;
-
         return 0;
     }
 }

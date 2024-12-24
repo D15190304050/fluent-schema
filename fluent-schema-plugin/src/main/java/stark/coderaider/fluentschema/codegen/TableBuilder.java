@@ -148,8 +148,6 @@ public final class TableBuilder
             appender
                 .append(".autoIncrement(")
                 .append(autoIncrement.getBegin())
-                .append(", ")
-                .append(autoIncrement.getIncrement())
                 .append(")");
         }
     }

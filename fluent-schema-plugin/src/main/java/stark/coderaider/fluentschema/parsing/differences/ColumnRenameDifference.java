@@ -1,10 +1,11 @@
 package stark.coderaider.fluentschema.parsing.differences;
 
 import lombok.Data;
+import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 
 @Data
 public class ColumnRenameDifference
 {
-    private String oldName;
-    private String newName;
+    private ColumnMetadata oldColumnMetadata;
+    private ColumnMetadata newColumnMetadata;
 }

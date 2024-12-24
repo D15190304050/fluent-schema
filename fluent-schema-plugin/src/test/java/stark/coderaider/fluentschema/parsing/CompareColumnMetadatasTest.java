@@ -23,7 +23,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
@@ -53,7 +53,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
@@ -88,7 +88,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
@@ -123,7 +123,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
@@ -152,7 +152,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
@@ -181,7 +181,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
@@ -216,7 +216,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
@@ -258,7 +258,7 @@ public class CompareColumnMetadatasTest
         ColumnMetadata columnId = ColumnMetadata.builder()
             .name("id")
             .type("BIGINT")
-            .autoIncrement(1, 1)
+            .autoIncrement(1)
             .build();
         oldColumnMetadatas.add(columnId);
         newColumnMetadatas.add(columnId);
