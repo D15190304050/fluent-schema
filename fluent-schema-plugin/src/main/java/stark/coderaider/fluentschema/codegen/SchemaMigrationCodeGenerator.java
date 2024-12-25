@@ -1,5 +1,7 @@
 package stark.coderaider.fluentschema.codegen;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.eclipse.jface.text.BadLocationException;
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
@@ -10,7 +12,7 @@ import java.util.List;
 
 public class SchemaMigrationCodeGenerator
 {
-    public static String generateSchemaMigration(String packageName, String className, List<TableSchemaInfo> newTableSchemaInfos, List<TableSchemaInfo> oldTableSchemaInfos)
+    public static String generateSchemaMigration(String packageName, String className, List<TableSchemaInfo> newTableSchemaInfos, List<TableSchemaInfo> oldTableSchemaInfos) throws MojoExecutionException, BadLocationException
     {
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
 
@@ -45,7 +47,7 @@ public class SchemaMigrationCodeGenerator
         // End of class.
         schemaMigrationBuilder.append("}");
 
-        return schemaMigrationBuilder.toString();
+        return CodeFormatter.formatCode(schemaMigrationBuilder.toString());
     }
 
     public static void buildForwardMethod(StringBuilder schemaMigrationBuilder, TableSchemaDifference tableSchemaDifference)

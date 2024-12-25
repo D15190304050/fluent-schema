@@ -2,6 +2,7 @@ package stark.coderaider.fluentschema.commons.schemas.operations;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import stark.coderaider.fluentschema.commons.schemas.AutoIncrementMetadata;
 import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
 import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
@@ -36,10 +37,11 @@ public class CreateTableOperation extends MigrationOperationBase
         {
             KeyDefinition keyDefinition = new KeyDefinition(keyMetadata);
             keyDefinitionsBuilder
+                .append(",")
                 .append(System.lineSeparator())
                 .append("    ")
-                .append(keyDefinition.toSql().trim())
-                .append(",");
+                .append("KEY")
+                .append(keyDefinition.toSql().trim());
         }
 
         String comment = tableSchemaInfo.getComment();
@@ -48,6 +50,8 @@ public class CreateTableOperation extends MigrationOperationBase
         if (!commentSql.isEmpty())
             commentSql = System.lineSeparator() + "    " + commentSql;
 
+
+
         return MessageFormat.format(
             """
                 CREATE TABLE `{0}`
@@ -55,16 +59,29 @@ public class CreateTableOperation extends MigrationOperationBase
                 {1}
                     PRIMARY KEY (`{2}`){3}
                 )
-                    ENGINE = {4}{5};
+                    ENGINE = {4}{5}{6};
                 """,
             tableSchemaInfo.getName(),
             columnDefinitionsBuilder.toString(),
             tableSchemaInfo.getPrimaryKeyMetadata().getColumnName(),
-            keyDefinitionsBuilder.isEmpty()
-                ? ""
-                : keyDefinitionsBuilder.substring(0, keyDefinitionsBuilder.length() - 1),
+            keyDefinitionsBuilder,
             tableSchemaInfo.getEngine(),
+            getAutoIncrement(),
             commentSql
         ).trim();
+    }
+
+    private String getAutoIncrement()
+    {
+        List<ColumnMetadata> columnsWithAutoIncrement = tableSchemaInfo.getColumnMetadatas().stream().filter(x -> x.getAutoIncrement() != null).toList();
+        if (!columnsWithAutoIncrement.isEmpty())
+        {
+            ColumnMetadata columnMetadata = columnsWithAutoIncrement.get(0);
+            AutoIncrementMetadata autoIncrement = columnMetadata.getAutoIncrement();
+            if (autoIncrement != null)
+                return System.lineSeparator() + "    " + "AUTO_INCREMENT = " + autoIncrement.getBegin();
+        }
+
+        return "";
     }
 }
