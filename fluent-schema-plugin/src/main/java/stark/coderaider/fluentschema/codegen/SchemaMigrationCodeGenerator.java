@@ -12,7 +12,7 @@ import java.util.List;
 
 public class SchemaMigrationCodeGenerator
 {
-    public static String generateSchemaMigration(String packageName, String className, List<TableSchemaInfo> newTableSchemaInfos, List<TableSchemaInfo> oldTableSchemaInfos) throws MojoExecutionException, BadLocationException
+    public static String generateSchemaMigration(String packageName, String className, List<TableSchemaInfo> newTableSchemaInfos, List<TableSchemaInfo> oldTableSchemaInfos, boolean initialized) throws MojoExecutionException, BadLocationException
     {
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
 
@@ -39,7 +39,7 @@ public class SchemaMigrationCodeGenerator
             .append(" {");
 
         // Forward.
-        buildForwardMethod(schemaMigrationBuilder, tableSchemaDifference);
+        buildForwardMethod(schemaMigrationBuilder, tableSchemaDifference, initialized);
 
         // Backward.
         buildBackwardMethod(schemaMigrationBuilder, tableSchemaDifference);
@@ -50,7 +50,7 @@ public class SchemaMigrationCodeGenerator
         return CodeFormatter.formatCode(schemaMigrationBuilder.toString());
     }
 
-    public static void buildForwardMethod(StringBuilder schemaMigrationBuilder, TableSchemaDifference tableSchemaDifference)
+    public static void buildForwardMethod(StringBuilder schemaMigrationBuilder, TableSchemaDifference tableSchemaDifference, boolean initialized)
     {
         // Method declaration.
         schemaMigrationBuilder
@@ -58,6 +58,12 @@ public class SchemaMigrationCodeGenerator
             .append(" ")
             .append("public void forward()")
             .append("{");
+
+        if (!initialized)
+        {
+            schemaMigrationBuilder
+                .append("setInitialized(false);");
+        }
 
         // Tables to add.
         List<TableSchemaInfo> tablesToAdd = tableSchemaDifference.getTablesToAdd();

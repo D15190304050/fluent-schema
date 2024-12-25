@@ -28,7 +28,8 @@ public class SchemaMigrationCodeGeneratorTest
             "stark.coderaider.fluentschema.examples",
             "SchemaMigration01",
             List.of(tableSchemaInfoOfP2),
-            List.of(tableSchemaInfoOfP1)
+            List.of(tableSchemaInfoOfP1),
+            true
         );
 
         System.out.println(code);
@@ -74,7 +75,8 @@ public class SchemaMigrationCodeGeneratorTest
             "stark.coderaider.fluentschema.examples",
             "SchemaMigration05",
             newTableSchemaInfos,
-            oldTableSchemaInfos);
+            oldTableSchemaInfos,
+            true);
 
         System.out.println(code);
     }
@@ -119,7 +121,8 @@ public class SchemaMigrationCodeGeneratorTest
             "stark.coderaider.fluentschema.examples",
             "SchemaMigration06",
             newTableSchemaInfos,
-            oldTableSchemaInfos);
+            oldTableSchemaInfos,
+            false);
 
         System.out.println(code);
     }
@@ -137,7 +140,8 @@ public class SchemaMigrationCodeGeneratorTest
             "stark.coderaider.fluentschema.examples",
             "SchemaMigration07",
             newTableSchemaInfos,
-            oldTableSchemaInfos);
+            oldTableSchemaInfos,
+            false);
 
         System.out.println(code);
     }

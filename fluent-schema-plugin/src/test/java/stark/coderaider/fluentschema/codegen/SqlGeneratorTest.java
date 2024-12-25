@@ -3,6 +3,7 @@ package stark.coderaider.fluentschema.codegen;
 import org.junit.Test;
 import stark.coderaider.fluentschema.commons.schemas.SchemaMigrationBase;
 import stark.coderaider.fluentschema.commons.schemas.SchemaSnapshotBase;
+import stark.coderaider.fluentschema.examples.SchemaMigration05;
 import stark.coderaider.fluentschema.examples.SchemaMigration06;
 import stark.coderaider.fluentschema.examples.SchemaMigration07;
 import stark.coderaider.fluentschema.test.migrations.EmptyMigration;
@@ -31,8 +32,21 @@ public class SqlGeneratorTest
     public void testGenerateMigrationSql2() throws IOException, URISyntaxException
     {
         EmptyMigration emptyMigration = new EmptyMigration();
-        SchemaMigration06 schemaMigration06 = new SchemaMigration06();
-        List<SchemaMigrationBase> schemaMigrations = List.of(emptyMigration, schemaMigration06);
+        SchemaMigration06 schemaMigration = new SchemaMigration06();
+        List<SchemaMigrationBase> schemaMigrations = List.of(emptyMigration, schemaMigration);
+
+        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations);
+        String sql = sqlGenerator.generateMigrationSql();
+
+        System.out.println(sql);
+    }
+
+    @Test
+    public void testGenerateMigrationSql3() throws IOException, URISyntaxException
+    {
+        EmptyMigration emptyMigration = new EmptyMigration();
+        SchemaMigration05 schemaMigration = new SchemaMigration05();
+        List<SchemaMigrationBase> schemaMigrations = List.of(emptyMigration, schemaMigration);
 
         SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations);
         String sql = sqlGenerator.generateMigrationSql();

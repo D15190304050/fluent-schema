@@ -1,5 +1,6 @@
 package stark.coderaider.fluentschema.goals;
 
+import lombok.SneakyThrows;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -7,17 +8,24 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.springframework.util.CollectionUtils;
+import stark.coderaider.fluentschema.codegen.SchemaMigrationCodeGenerator;
+import stark.coderaider.fluentschema.codegen.SnapshotCodeGenerator;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 import stark.coderaider.fluentschema.parsing.EntityParser;
 
 import javax.tools.*;
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +40,7 @@ public class GenerateSchema extends AbstractMojo
     @Parameter(property = "entityPackage", required = true)
     private String entityPackage;
 
-    @Parameter(property = "schemaPackage")
+    @Parameter(property = "schemaPackage", required = true)
     private String schemaPackage;
 
     @Parameter(property = "dataSourceName")
@@ -45,7 +53,9 @@ public class GenerateSchema extends AbstractMojo
     private MavenProject project;
 
     private List<String> dependencies;
+    private String schemaClassName;
 
+    @SneakyThrows
     @Override
     public void execute() throws MojoExecutionException
     {
@@ -63,21 +73,28 @@ public class GenerateSchema extends AbstractMojo
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
         for (Class<?> entityClass : entityClasses)
         {
+            getLog().info("Annotations on class " + entityClass.getName());
+            Annotation[] annotations = entityClass.getAnnotations();
+            for (Annotation annotation : annotations)
+                getLog().info(annotation.annotationType().getName());
+            getLog().info("...xxx...");
+
             EntityParser parser = new EntityParser();
             TableSchemaInfo tableSchemaInfo = parser.parse(entityClass);
             newTableSchemaInfos.add(tableSchemaInfo);
         }
 
         Class<?> schemaClass = getSchemaClass();
+        boolean initialized;
         List<TableSchemaInfo> oldTableSchemaInfos;
         if (schemaClass == null)
         {
-            boolean needToInitialHistoryTable = false;
+            initialized = false;
             oldTableSchemaInfos = new ArrayList<>();
         }
         else
         {
-            boolean needToInitialHistoryTable = true;
+            initialized = true;
 
             String schemaClassName = schemaClass.getName();
             try
@@ -101,11 +118,14 @@ public class GenerateSchema extends AbstractMojo
             }
         }
 
+        String code = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaClassName, newTableSchemaInfos);
+        String schemaFilePath = sourceDirectory + schemaPackage.replace(".", File.separator) + schemaClassName + ".java";
+        Files.writeString(Path.of(schemaFilePath), code, StandardCharsets.UTF_8);
     }
 
     private Class<?> getSchemaClass() throws MojoExecutionException
     {
-        String schemaClassName = getSchemaClassName();
+        schemaClassName = getSchemaClassName();
         getLog().info("Schema class name: " + schemaClassName);
 
         List<Class<?>> schemaClasses = loadSchemaClasses();
@@ -190,7 +210,7 @@ public class GenerateSchema extends AbstractMojo
 
     private List<Class<?>> compileAndLoadClasses(List<File> javaFiles) throws Exception
     {
-        compileJavaFiles(javaFiles, dependencies);
+//        compileJavaFiles(javaFiles, dependencies);
         List<Class<?>> loadedClasses = loadCompiledClasses(javaFiles);
 
         getLog().info("Loaded classes:");
@@ -228,7 +248,7 @@ public class GenerateSchema extends AbstractMojo
             else
             {
                 String fileAbsolutePath = file.getAbsolutePath();
-                String directoryPath = fileAbsolutePath.substring(0, fileAbsolutePath.lastIndexOf("\\"));
+                String directoryPath = fileAbsolutePath.substring(0, fileAbsolutePath.lastIndexOf(File.separator));
                 if (file.getName().endsWith(".java") && file.getPath().contains(packagePath) && directoryPath.endsWith(packagePath))
                     results.add(file);
             }
@@ -297,17 +317,18 @@ public class GenerateSchema extends AbstractMojo
 
     private List<Class<?>> loadCompiledClasses(List<File> javaFiles) throws Exception
     {
-        List<Class<?>> classes = new ArrayList<>();
-        URLClassLoader classLoader = new URLClassLoader(new URL[]{outputDirectory.toURI().toURL()});
+        ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+        URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{outputDirectory.toURI().toURL()}, currentClassLoader);
+        Thread.currentThread().setContextClassLoader(urlClassLoader);
 
+        List<Class<?>> classes = new ArrayList<>();
         for (File file : javaFiles)
         {
             String className = getClassName(file);
-            Class<?> clazz = classLoader.loadClass(className);
+            Class<?> clazz = urlClassLoader.loadClass(className);
             classes.add(clazz);
         }
 
-        classLoader.close();
         return classes;
     }
 
