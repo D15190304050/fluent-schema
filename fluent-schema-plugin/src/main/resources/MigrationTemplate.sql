@@ -17,11 +17,11 @@ BEGIN
     -- Alter table structures here if there is no record of snapshot history.
     IF recordExists = 0 THEN
         -- Schema changes.
-        ALTER TABLE sampledataoflearningmysql ADD COLUMN teacher_name VARCHAR(255);
+        #{schemaChanges}
 
         -- schema_snapshot_history.
         INSERT INTO `schema_snapshot_history` (schema_snapshot_name, fluent_schema_version)
-        VALUES (snapshot_name, '8.0.33'); -- 假设这是 MySQL 版本
+        VALUES (snapshot_name, '8.0.33');
 
     END IF;
 
@@ -30,4 +30,4 @@ END $$
 
 DELIMITER ;
 
-CALL #{sp_alter_tables}(#{snapshotName});
+CALL #{sp_alter_tables}('#{snapshotName}');

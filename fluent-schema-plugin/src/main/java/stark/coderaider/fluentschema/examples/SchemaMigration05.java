@@ -12,7 +12,7 @@ public class SchemaMigration05 extends SchemaMigrationBase
     @Override
     public void forward()
     {
-        forwardBuilder.addTable("t_add", builder ->
+        forwardBuilder.createTable("t_add", builder ->
         {
             builder.column().name("id").type("BIGINT").nullable(false).unique(false);
             builder.column().name("birthday").type("DATETIME").nullable(true).unique(false);
@@ -45,7 +45,7 @@ public class SchemaMigration05 extends SchemaMigrationBase
         backwardBuilder.alterColumn("t_alter_column", "name1", ColumnMetadata.builder().name("name").type("VARCHAR(32767)").nullable(true).unique(false).build());
         backwardBuilder.addKey("t_alter_column", KeyMetadata.builder().name("idx_name").columns(List.of("name")).build());
         backwardBuilder.renameTable("teacher", "student");
-        backwardBuilder.addTable("t_drop", builder ->
+        backwardBuilder.createTable("t_drop", builder ->
         {
             builder.column().name("id").type("BIGINT").nullable(false).unique(false);
             builder.column().name("name").type("VARCHAR(32767)").nullable(true).unique(false);

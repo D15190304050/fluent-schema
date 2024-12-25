@@ -3,7 +3,7 @@ package stark.coderaider.fluentschema.entities;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.annotations.*;
 
-@Table(namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE, comment = "History (tracking) of table schema change produced by fluent schema.")
+@Table(namingConvention = NamingConvention.LOWER_CASE_WITH_UNDERSCORE, comment = "History (tracking) of table schema changes produced by fluent schema.")
 public class SchemaSnapshotHistory
 {
     @PrimaryKey

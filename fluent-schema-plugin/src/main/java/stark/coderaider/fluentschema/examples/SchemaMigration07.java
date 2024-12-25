@@ -1,7 +1,5 @@
 package stark.coderaider.fluentschema.examples;
 
-import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
-import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
 import stark.coderaider.fluentschema.commons.schemas.SchemaMigrationBase;
 import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationBase;
 
@@ -12,7 +10,7 @@ public class SchemaMigration07 extends SchemaMigrationBase
     @Override
     public void forward()
     {
-        forwardBuilder.addTable("schema_snapshot_history", builder ->
+        forwardBuilder.createTable("schema_snapshot_history", builder ->
         {
             builder.column().name("id").type("BIGINT").nullable(false).unique(false).autoIncrement(1);
             builder.column().name("schema_snapshot_name").type("VARCHAR(200)").nullable(false).unique(true)
@@ -22,7 +20,7 @@ public class SchemaMigration07 extends SchemaMigrationBase
             builder.primaryKey().columnName("id");
             builder.key().name("idx_schema_snapshot_name").columns(List.of("schema_snapshot_name"));
             builder.engine("InnoDB");
-            builder.comment("History (tracking) of table schema change produced by fluent schema.");
+            builder.comment("History (tracking) of table schemas change produced by fluent schema.");
         });
     }
 

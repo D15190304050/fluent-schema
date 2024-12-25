@@ -28,7 +28,7 @@ public class SchemaMigrationExample extends SchemaMigrationBase
 
         forwardBuilder.dropTable("person3");
 
-        forwardBuilder.addTable("blog", builder ->
+        forwardBuilder.createTable("blog", builder ->
         {
             builder.column()
                 .name("id")
@@ -79,7 +79,7 @@ public class SchemaMigrationExample extends SchemaMigrationBase
             .type("VARCHAR(100)")
             .build());
 
-        backwardBuilder.addTable("person3", builder ->
+        backwardBuilder.createTable("person3", builder ->
         {
             builder.column()
                 .name("id")

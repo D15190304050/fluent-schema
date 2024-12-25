@@ -49,7 +49,7 @@ public class SchemaMigrationBuilder
         migrationOperations.add(dropTableOperation);
     }
 
-    public void addTable(String name, Consumer<TableSchemaBuilder> consumer)
+    public void createTable(String name, Consumer<TableSchemaBuilder> consumer)
     {
         TableSchemaInfo tableToAdd = TableSchemaBuilder.build(name, consumer);
         CreateTableOperation createTableOperation = new CreateTableOperation();
