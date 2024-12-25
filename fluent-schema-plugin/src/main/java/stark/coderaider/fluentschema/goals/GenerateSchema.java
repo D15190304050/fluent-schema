@@ -8,7 +8,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.springframework.util.CollectionUtils;
-import stark.coderaider.fluentschema.codegen.SchemaMigrationCodeGenerator;
 import stark.coderaider.fluentschema.codegen.SnapshotCodeGenerator;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
@@ -16,9 +15,7 @@ import stark.coderaider.fluentschema.parsing.EntityParser;
 
 import javax.tools.*;
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -53,7 +50,7 @@ public class GenerateSchema extends AbstractMojo
     private MavenProject project;
 
     private List<String> dependencies;
-    private String schemaClassName;
+    private String schemaSnapshotClassName;
 
     @SneakyThrows
     @Override
@@ -73,21 +70,15 @@ public class GenerateSchema extends AbstractMojo
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
         for (Class<?> entityClass : entityClasses)
         {
-            getLog().info("Annotations on class " + entityClass.getName());
-            Annotation[] annotations = entityClass.getAnnotations();
-            for (Annotation annotation : annotations)
-                getLog().info(annotation.annotationType().getName());
-            getLog().info("...xxx...");
-
             EntityParser parser = new EntityParser();
             TableSchemaInfo tableSchemaInfo = parser.parse(entityClass);
             newTableSchemaInfos.add(tableSchemaInfo);
         }
 
-        Class<?> schemaClass = getSchemaClass();
+        Class<?> schemaSnapshotClass = getSchemaSnapshotClass();
         boolean initialized;
         List<TableSchemaInfo> oldTableSchemaInfos;
-        if (schemaClass == null)
+        if (schemaSnapshotClass == null)
         {
             initialized = false;
             oldTableSchemaInfos = new ArrayList<>();
@@ -96,17 +87,17 @@ public class GenerateSchema extends AbstractMojo
         {
             initialized = true;
 
-            String schemaClassName = schemaClass.getName();
+            String schemaSnapshotClassName = schemaSnapshotClass.getName();
             try
             {
-                Constructor<?> constructor = schemaClass.getConstructor();
+                Constructor<?> constructor = schemaSnapshotClass.getConstructor();
                 Object schemaSnapshot = constructor.newInstance();
-                Method mGetTableSchemaInfos = schemaClass.getMethod("getTableSchemaInfos");
+                Method mGetTableSchemaInfos = schemaSnapshotClass.getMethod("getTableSchemaInfos");
                 oldTableSchemaInfos = (List<TableSchemaInfo>) mGetTableSchemaInfos.invoke(schemaSnapshot);
             }
             catch (NoSuchMethodException e)
             {
-                throw new MojoExecutionException("There is no method \"public List<TableSchemaInfo> getTableSchemaInfos()\" in " + schemaClassName, e);
+                throw new MojoExecutionException("There is no method \"public List<TableSchemaInfo> getTableSchemaInfos()\" in " + schemaSnapshotClassName, e);
             }
             catch (InvocationTargetException e)
             {
@@ -114,31 +105,37 @@ public class GenerateSchema extends AbstractMojo
             }
             catch (InstantiationException | IllegalAccessException e)
             {
-                throw new MojoExecutionException("Error instantiating " + schemaClassName, e);
+                throw new MojoExecutionException("Error instantiating " + schemaSnapshotClassName, e);
             }
         }
 
-        String code = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaClassName, newTableSchemaInfos);
-        String schemaFilePath = sourceDirectory + schemaPackage.replace(".", File.separator) + schemaClassName + ".java";
+        String schemaSnapshotClassSimpleName = schemaSnapshotClassName.substring(schemaSnapshotClassName.lastIndexOf('.') + 1);
+        String code = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaSnapshotClassSimpleName, newTableSchemaInfos);
+        String schemaFilePath = getSchemaSnapshotFilePath(schemaSnapshotClassSimpleName);
         Files.writeString(Path.of(schemaFilePath), code, StandardCharsets.UTF_8);
     }
 
-    private Class<?> getSchemaClass() throws MojoExecutionException
+    private String getSchemaSnapshotFilePath(String schemaSnapshotClassSimpleName)
     {
-        schemaClassName = getSchemaClassName();
-        getLog().info("Schema class name: " + schemaClassName);
+        return sourceDirectory + File.separator + schemaPackage.replace(".", File.separator) + File.separator + schemaSnapshotClassSimpleName + ".java";
+    }
 
-        List<Class<?>> schemaClasses = loadSchemaClasses();
-        for (Class<?> schemaClass : schemaClasses)
+    private Class<?> getSchemaSnapshotClass() throws MojoExecutionException
+    {
+        schemaSnapshotClassName = getSchemaSnapshotClassName();
+        getLog().info("Schema class name: " + schemaSnapshotClassName);
+
+        List<Class<?>> schemaSnapshotClasses = loadSchemaSnapshotClasses();
+        for (Class<?> schemaSnapshotClass : schemaSnapshotClasses)
         {
-            if (schemaClassName.equals(schemaClass.getName()))
-                return schemaClass;
+            if (schemaSnapshotClassName.equals(schemaSnapshotClass.getName()))
+                return schemaSnapshotClass;
         }
 
         return null;
     }
 
-    private String getSchemaClassName()
+    private String getSchemaSnapshotClassName()
     {
         getLog().info("Schema package: " + schemaPackage);
         String dataSourceClassName = NamingConverter.toClassLikeName(dataSourceName);
@@ -147,7 +144,7 @@ public class GenerateSchema extends AbstractMojo
 
     private void prepareSchemaPackage() throws MojoExecutionException
     {
-        if (schemaPackage == null)
+        if (schemaPackage == null || schemaPackage.isEmpty())
             schemaPackage = entityPackage.substring(0, entityPackage.lastIndexOf('.')) + ".schemas";
 
         String schemaPackagePath = sourceDirectory.getAbsolutePath() + File.separator + schemaPackage.replace('.', File.separatorChar);
@@ -190,7 +187,7 @@ public class GenerateSchema extends AbstractMojo
         }
     }
 
-    private List<Class<?>> loadSchemaClasses() throws MojoExecutionException
+    private List<Class<?>> loadSchemaSnapshotClasses() throws MojoExecutionException
     {
         getLog().info("Analyzing sources in directory: " + schemaPackage);
 
