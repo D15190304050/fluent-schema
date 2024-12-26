@@ -70,7 +70,7 @@ public class SchemaMigrationCodeGenerator
         for (TableSchemaInfo tableSchemaInfo : tablesToAdd)
         {
             schemaMigrationBuilder
-                .append("forwardBuilder.addTable(\"")
+                .append("forwardBuilder.createTable(\"")
                 .append(tableSchemaInfo.getName())
                 .append("\", builder ->{");
 
@@ -430,7 +430,7 @@ public class SchemaMigrationCodeGenerator
         for (TableSchemaInfo tableSchemaInfo : tablesToDrop)
         {
             schemaMigrationBuilder
-                .append("backwardBuilder.addTable(\"")
+                .append("backwardBuilder.createTable(\"")
                 .append(tableSchemaInfo.getName())
                 .append("\", builder ->{");
 
