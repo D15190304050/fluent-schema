@@ -1,8 +1,10 @@
 package stark.coderaider.fluentschema.goals;
 
 import lombok.SneakyThrows;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -26,13 +28,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mojo(name = "generate-schema", defaultPhase = LifecyclePhase.PROCESS_SOURCES, threadSafe = true, requiresDependencyResolution = org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME)
+// Add @Execute(phase = LifecyclePhase.COMPILE) to make sure the project will be compiled before the execution of this goa.
+// Because this goal relies on the compiled .class files.
+@Mojo(name = "generate-schema", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Execute(phase = LifecyclePhase.COMPILE)
 public class GenerateSchema extends AbstractMojo
 {
     public static final String DEFAULT_SCHEMA_NAME = "SchemaSnapshot";
-
-    @Parameter(defaultValue = "${project.basedir}/src/main/java", readonly = true, required = true)
-    private File sourceDirectory;
 
     @Parameter(property = "entityPackage", required = true)
     private String entityPackage;
@@ -43,19 +45,22 @@ public class GenerateSchema extends AbstractMojo
     @Parameter(property = "dataSourceName")
     private String dataSourceName;
 
-    @Parameter(defaultValue = "${project.build.directory}/generated-classes", readonly = true)
-    private File outputDirectory;
-
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    private MavenSession session;
+
     private List<String> dependencies;
+    private File sourceDirectory;
+    private File outputDirectory;
     private String schemaSnapshotClassName;
 
     @SneakyThrows
     @Override
     public void execute() throws MojoExecutionException
     {
+        initializeSourceAndOutputDirectories();
         validateDirectoryParameters();
         resolveProjectDependencies();
         prepareSchemaPackage();
@@ -113,6 +118,15 @@ public class GenerateSchema extends AbstractMojo
         String code = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaSnapshotClassSimpleName, newTableSchemaInfos);
         String schemaFilePath = getSchemaSnapshotFilePath(schemaSnapshotClassSimpleName);
         Files.writeString(Path.of(schemaFilePath), code, StandardCharsets.UTF_8);
+    }
+
+    private void initializeSourceAndOutputDirectories()
+    {
+        String sourceDirectoryPath = session.getCurrentProject().getBuild().getSourceDirectory();
+        sourceDirectory = new File(sourceDirectoryPath);
+
+        String outputDirectoryPath = session.getCurrentProject().getBuild().getOutputDirectory();
+        outputDirectory = new File(outputDirectoryPath);
     }
 
     private String getSchemaSnapshotFilePath(String schemaSnapshotClassSimpleName)
@@ -194,6 +208,8 @@ public class GenerateSchema extends AbstractMojo
         List<File> javaFiles = findClassesInPackage(schemaPackage);
         if (javaFiles.isEmpty())
             return new ArrayList<>();
+
+        getLog().info("javaFiles = " + String.join(";", javaFiles.stream().map(File::getAbsolutePath).toList()));
 
         try
         {
