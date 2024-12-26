@@ -4,6 +4,7 @@ import stark.coderaider.fluentschema.commons.schemas.SchemaMigrationBase;
 import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperationBase;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -77,9 +78,9 @@ public class SqlGenerator
 
     private String getStringFromResourceFile(String fileName) throws IOException, URISyntaxException
     {
-        URL resource = getClass().getClassLoader().getResource(fileName);
-        Path pathOfSnapshotHistory = Path.of(resource.toURI());
-        byte[] bytes = Files.readAllBytes(pathOfSnapshotHistory);
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
+        byte[] bytes = new byte[inputStream.available()];
+        inputStream.read(bytes);
         return new String(bytes, StandardCharsets.UTF_8);
     }
 

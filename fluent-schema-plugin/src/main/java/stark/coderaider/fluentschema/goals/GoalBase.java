@@ -14,6 +14,8 @@ import java.util.List;
 
 public abstract class GoalBase extends AbstractMojo
 {
+    public static final String SCHEMA_MIGRATION_CLASS_NAME_PREFIX = "SchemaMigration";
+
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     protected MavenProject project;
 
@@ -73,17 +75,15 @@ public abstract class GoalBase extends AbstractMojo
         URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{outputDirectory.toURI().toURL()}, currentClassLoader);
         Thread.currentThread().setContextClassLoader(urlClassLoader);
 
+        getLog().info("Loaded classes:");
         List<Class<?>> loadedClasses = new ArrayList<>();
         for (File file : javaFiles)
         {
             String className = getClassName(file);
             Class<?> clazz = urlClassLoader.loadClass(className);
             loadedClasses.add(clazz);
-        }
-
-        getLog().info("Loaded classes:");
-        for (Class<?> clazz : loadedClasses)
             getLog().info(" - " + clazz.getName());
+        }
 
         return loadedClasses;
     }

@@ -34,7 +34,6 @@ import java.util.List;
 @Execute(phase = LifecyclePhase.COMPILE)
 public class GenerateSchema extends GoalBase
 {
-    public static final String SCHEMA_MIGRATION = "SchemaMigration";
     public static final SimpleDateFormat DATE_FORMAT;
     public static final String DEFAULT_SCHEMA_NAME = "SchemaSnapshot";
 
@@ -163,8 +162,8 @@ public class GenerateSchema extends GoalBase
     {
         getLog().info("Schema snapshot class name: " + schemaSnapshotClassName);
 
-        List<Class<?>> schemaSnapshotClasses = loadClassesInSchemaPackage();
-        for (Class<?> schemaSnapshotClass : schemaSnapshotClasses)
+        List<Class<?>> classesInSchemaPackage = loadClassesInSchemaPackage();
+        for (Class<?> schemaSnapshotClass : classesInSchemaPackage)
         {
             if (schemaSnapshotClassName.equals(schemaSnapshotClass.getName()))
                 return schemaSnapshotClass;
@@ -201,7 +200,7 @@ public class GenerateSchema extends GoalBase
     {
         Date now = new Date();
         String timestamp = DATE_FORMAT.format(now);
-        return SCHEMA_MIGRATION + timestamp;
+        return SCHEMA_MIGRATION_CLASS_NAME_PREFIX + timestamp;
     }
 
     private String getCodeFilePath(String classSimpleName)
