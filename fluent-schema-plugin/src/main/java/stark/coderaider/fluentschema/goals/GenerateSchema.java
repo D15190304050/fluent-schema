@@ -1,14 +1,11 @@
 package stark.coderaider.fluentschema.goals;
 
 import lombok.SneakyThrows;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.springframework.util.CollectionUtils;
 import stark.coderaider.fluentschema.codegen.SchemaMigrationCodeGenerator;
 import stark.coderaider.fluentschema.codegen.SnapshotCodeGenerator;
@@ -18,14 +15,11 @@ import stark.coderaider.fluentschema.parsing.EntityParser;
 import stark.dataworks.basic.data.json.JsonSerializer;
 import stark.dataworks.basic.params.OutValue;
 
-import javax.tools.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,17 +54,23 @@ public class GenerateSchema extends GoalBase
     @Override
     public void execute()
     {
+        // Preparation.
         super.prepare();
         prepareSchemaPackage();
-        newTableSchemaInfos = parseEntitiesForTableSchema();
 
+        // Get old table schemas.
         OutValue<Boolean> initialized = new OutValue<>();
         List<TableSchemaInfo> oldTableSchemaInfos = getOldTableSchemaInfos(initialized);
 
+        // Get new table schemas.
+        newTableSchemaInfos = parseEntitiesForTableSchema();
+
+        // Write schema migration class.
         String schemaMigrationHistoryClassName = getSchemaMigrationHistoryClassName();
         String codeOfSchemaMigration = SchemaMigrationCodeGenerator.generateSchemaMigration(schemaPackage, schemaMigrationHistoryClassName, newTableSchemaInfos, oldTableSchemaInfos, initialized.getValue());
         writeCodeToClass(schemaMigrationHistoryClassName, codeOfSchemaMigration);
 
+        // Write schema snapshot class.
         String schemaSnapshotClassSimpleName = schemaSnapshotClassName.substring(schemaSnapshotClassName.lastIndexOf('.') + 1);
         String codeOfSchemaSnapshot = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaSnapshotClassSimpleName, newTableSchemaInfos);
         writeCodeToClass(schemaSnapshotClassSimpleName, codeOfSchemaSnapshot);

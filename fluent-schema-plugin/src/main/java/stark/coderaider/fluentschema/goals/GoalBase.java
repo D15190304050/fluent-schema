@@ -29,7 +29,6 @@ public abstract class GoalBase extends AbstractMojo
     protected File sourceDirectory;
     protected File outputDirectory;
 
-
     protected void prepare() throws MojoExecutionException
     {
         String sourceDirectoryPath = session.getCurrentProject().getBuild().getSourceDirectory();
