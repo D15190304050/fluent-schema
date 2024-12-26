@@ -57,13 +57,14 @@ public class GenerateSchema extends GoalBase
         // Preparation.
         super.prepare();
         prepareSchemaPackage();
+        prepareSchemaSnapshotClassName();
 
         // Get old table schemas.
         OutValue<Boolean> initialized = new OutValue<>();
         List<TableSchemaInfo> oldTableSchemaInfos = getOldTableSchemaInfos(initialized);
 
         // Get new table schemas.
-        newTableSchemaInfos = parseEntitiesForTableSchema();
+        newTableSchemaInfos = parseEntitiesForTableSchemas();
 
         // Write schema migration class.
         String schemaMigrationHistoryClassName = getSchemaMigrationHistoryClassName();
@@ -78,7 +79,7 @@ public class GenerateSchema extends GoalBase
 
     private List<TableSchemaInfo> getOldTableSchemaInfos(OutValue<Boolean> initialized) throws MojoExecutionException
     {
-        Class<?> schemaSnapshotClass = getSchemaSnapshotClass();
+        Class<?> schemaSnapshotClass = loadSchemaSnapshotClass();
         List<TableSchemaInfo> oldTableSchemaInfos;
         if (schemaSnapshotClass == null)
         {
@@ -117,7 +118,7 @@ public class GenerateSchema extends GoalBase
         return oldTableSchemaInfos;
     }
 
-    private List<TableSchemaInfo> parseEntitiesForTableSchema() throws MojoExecutionException
+    private List<TableSchemaInfo> parseEntitiesForTableSchemas() throws MojoExecutionException
     {
         List<Class<?>> entityClasses = loadEntityClasses();
         if (CollectionUtils.isEmpty(entityClasses))
@@ -158,12 +159,11 @@ public class GenerateSchema extends GoalBase
         }
     }
 
-    private Class<?> getSchemaSnapshotClass() throws MojoExecutionException
+    private Class<?> loadSchemaSnapshotClass() throws MojoExecutionException
     {
-        schemaSnapshotClassName = getSchemaSnapshotClassName();
-        getLog().info("Schema class name: " + schemaSnapshotClassName);
+        getLog().info("Schema snapshot class name: " + schemaSnapshotClassName);
 
-        List<Class<?>> schemaSnapshotClasses = loadSchemaSnapshotClasses();
+        List<Class<?>> schemaSnapshotClasses = loadClassesInSchemaPackage();
         for (Class<?> schemaSnapshotClass : schemaSnapshotClasses)
         {
             if (schemaSnapshotClassName.equals(schemaSnapshotClass.getName()))
@@ -173,11 +173,11 @@ public class GenerateSchema extends GoalBase
         return null;
     }
 
-    private String getSchemaSnapshotClassName()
+    private void prepareSchemaSnapshotClassName()
     {
         getLog().info("Schema package: " + schemaPackage);
         String dataSourceClassName = NamingConverter.toClassLikeName(dataSourceName);
-        return schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
+        schemaSnapshotClassName = schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
     }
 
     private void prepareSchemaPackage() throws MojoExecutionException
@@ -194,26 +194,6 @@ public class GenerateSchema extends GoalBase
             if (!schemaPackageDir.mkdirs())
                 throw new MojoExecutionException("Failed to create output directory: " + schemaPackageDir);
             getLog().info("Schema package " + schemaPackage + " created.");
-        }
-    }
-
-    private List<Class<?>> loadSchemaSnapshotClasses() throws MojoExecutionException
-    {
-        getLog().info("Analyzing sources in directory: " + schemaPackage);
-
-        List<File> javaFiles = findClassesInPackage(schemaPackage);
-        if (javaFiles.isEmpty())
-            return new ArrayList<>();
-
-        getLog().info("javaFiles = " + String.join(";", javaFiles.stream().map(File::getAbsolutePath).toList()));
-
-        try
-        {
-            return loadCompiledClasses(javaFiles);
-        }
-        catch (Exception e)
-        {
-            throw new MojoExecutionException("Error during class loading or compilation", e);
         }
     }
 

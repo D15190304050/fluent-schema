@@ -10,21 +10,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.util.List;
 
 @Mojo(name = "generate-forward-sql", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 @Execute(phase = LifecyclePhase.COMPILE)
 public class GenerateForwardSql extends GoalBase
 {
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject project;
-
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
-    private MavenSession session;
-
     @Parameter(property = "schemaPackage", required = true)
     private String schemaPackage;
-
-    private File outputDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
@@ -32,5 +25,12 @@ public class GenerateForwardSql extends GoalBase
         super.prepare();
 
 
+    }
+
+    private List<Class<?>> loadSchemaMigrationClasses()
+    {
+        List<File> classesInPackage = findClassesInPackage(schemaPackage);
+//        loadCompiledClasses()
+        return null;
     }
 }

@@ -106,4 +106,20 @@ public abstract class GoalBase extends AbstractMojo
         // Convert path to fully qualified class name.
         return relativePath.replace(File.separator, ".").replace(".java", "");
     }
+
+    protected List<Class<?>> loadClassesInSchemaPackage() throws MojoExecutionException
+    {
+        List<File> javaFiles = findClassesInPackage(schemaPackage);
+        if (javaFiles.isEmpty())
+            return new ArrayList<>();
+
+        try
+        {
+            return loadCompiledClasses(javaFiles);
+        }
+        catch (Exception e)
+        {
+            throw new MojoExecutionException("Error during class loading or compilation", e);
+        }
+    }
 }
