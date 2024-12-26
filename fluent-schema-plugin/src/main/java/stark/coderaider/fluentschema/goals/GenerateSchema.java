@@ -10,6 +10,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.springframework.util.CollectionUtils;
+import stark.coderaider.fluentschema.codegen.SchemaMigrationCodeGenerator;
 import stark.coderaider.fluentschema.codegen.SnapshotCodeGenerator;
 import stark.coderaider.fluentschema.commons.NamingConverter;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
@@ -17,6 +18,7 @@ import stark.coderaider.fluentschema.parsing.EntityParser;
 
 import javax.tools.*;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,7 +27,9 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 // Add @Execute(phase = LifecyclePhase.COMPILE) to make sure the project will be compiled before the execution of this goa.
@@ -34,6 +38,8 @@ import java.util.List;
 @Execute(phase = LifecyclePhase.COMPILE)
 public class GenerateSchema extends AbstractMojo
 {
+    public static final String SCHEMA_MIGRATION = "SchemaMigration";
+    public static final SimpleDateFormat DATE_FORMAT;
     public static final String DEFAULT_SCHEMA_NAME = "SchemaSnapshot";
 
     @Parameter(property = "entityPackage", required = true)
@@ -55,6 +61,11 @@ public class GenerateSchema extends AbstractMojo
     private File sourceDirectory;
     private File outputDirectory;
     private String schemaSnapshotClassName;
+
+    static
+    {
+        DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    }
 
     @SneakyThrows
     @Override
@@ -114,10 +125,12 @@ public class GenerateSchema extends AbstractMojo
             }
         }
 
+//        String schemaMigrationHistoryClassName = getSchemaMigrationHistoryClassName();
+//        String codeOfSchemaMigration = SchemaMigrationCodeGenerator.generateSchemaMigration(schemaPackage, schemaMigrationHistoryClassName, newTableSchemaInfos, oldTableSchemaInfos, initialized);
+
         String schemaSnapshotClassSimpleName = schemaSnapshotClassName.substring(schemaSnapshotClassName.lastIndexOf('.') + 1);
-        String code = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaSnapshotClassSimpleName, newTableSchemaInfos);
-        String schemaFilePath = getSchemaSnapshotFilePath(schemaSnapshotClassSimpleName);
-        Files.writeString(Path.of(schemaFilePath), code, StandardCharsets.UTF_8);
+        String codeOfSchemaSnapshot = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaSnapshotClassSimpleName, newTableSchemaInfos);
+        writeCodeToClass(schemaSnapshotClassSimpleName, codeOfSchemaSnapshot);
     }
 
     private void initializeSourceAndOutputDirectories()
@@ -129,10 +142,7 @@ public class GenerateSchema extends AbstractMojo
         outputDirectory = new File(outputDirectoryPath);
     }
 
-    private String getSchemaSnapshotFilePath(String schemaSnapshotClassSimpleName)
-    {
-        return sourceDirectory + File.separator + schemaPackage.replace(".", File.separator) + File.separator + schemaSnapshotClassSimpleName + ".java";
-    }
+
 
     private Class<?> getSchemaSnapshotClass() throws MojoExecutionException
     {
@@ -354,5 +364,23 @@ public class GenerateSchema extends AbstractMojo
 
         String relativePath = absolutePath.substring(sourceDirPath.length() + 1); // Remove the source dir path
         return relativePath.replace(File.separator, ".").replace(".java", "");  // Convert path to fully qualified class name
+    }
+
+    private String getSchemaMigrationHistoryClassName()
+    {
+        Date now = new Date();
+        String timestamp = DATE_FORMAT.format(now);
+        return SCHEMA_MIGRATION + timestamp;
+    }
+
+    private String getCodeFilePath(String classSimpleName)
+    {
+        return sourceDirectory + File.separator + schemaPackage.replace(".", File.separator) + File.separator + classSimpleName + ".java";
+    }
+
+    private void writeCodeToClass(String className, String code) throws IOException
+    {
+        String codeFilePath = getCodeFilePath(className);
+        Files.writeString(Path.of(codeFilePath), code, StandardCharsets.UTF_8);
     }
 }
