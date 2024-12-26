@@ -1,22 +1,10 @@
 package stark.coderaider.fluentschema.codegen;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.TextEdit;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import stark.coderaider.fluentschema.commons.schemas.AutoIncrementMetadata;
-import stark.coderaider.fluentschema.commons.schemas.ColumnMetadata;
-import stark.coderaider.fluentschema.commons.schemas.KeyMetadata;
-import stark.coderaider.fluentschema.commons.schemas.PrimaryKeyMetadata;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SnapshotCodeGenerator
 {

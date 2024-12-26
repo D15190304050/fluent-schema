@@ -6,10 +6,7 @@ import stark.coderaider.fluentschema.commons.schemas.operations.MigrationOperati
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 public class SqlGenerator

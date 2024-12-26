@@ -1,6 +1,5 @@
 package stark.coderaider.fluentschema.goals;
 
-import lombok.SneakyThrows;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -49,31 +48,38 @@ public class GenerateSchema extends GoalBase
         DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
     }
 
-    @SneakyThrows
     @Override
     public void execute()
     {
-        // Preparation.
-        super.prepare();
-        prepareSchemaPackage();
-        prepareSchemaSnapshotClassName();
+        try
+        {
+            // Preparation.
+            super.prepare();
+            prepareSchemaPackage();
+            prepareSchemaSnapshotClassName();
 
-        // Get old table schemas.
-        OutValue<Boolean> initialized = new OutValue<>();
-        List<TableSchemaInfo> oldTableSchemaInfos = getOldTableSchemaInfos(initialized);
+            // Get old table schemas.
+            OutValue<Boolean> initialized = new OutValue<>();
+            List<TableSchemaInfo> oldTableSchemaInfos = getOldTableSchemaInfos(initialized);
 
-        // Get new table schemas.
-        newTableSchemaInfos = parseEntitiesForTableSchemas();
+            // Get new table schemas.
+            newTableSchemaInfos = parseEntitiesForTableSchemas();
 
-        // Write schema migration class.
-        String schemaMigrationHistoryClassName = getSchemaMigrationHistoryClassName();
-        String codeOfSchemaMigration = SchemaMigrationCodeGenerator.generateSchemaMigration(schemaPackage, schemaMigrationHistoryClassName, newTableSchemaInfos, oldTableSchemaInfos, initialized.getValue());
-        writeCodeToClass(schemaMigrationHistoryClassName, codeOfSchemaMigration);
+            // Write schema migration class.
+            String schemaMigrationHistoryClassName = getSchemaMigrationHistoryClassName();
+            String codeOfSchemaMigration = SchemaMigrationCodeGenerator.generateSchemaMigration(schemaPackage, schemaMigrationHistoryClassName, newTableSchemaInfos, oldTableSchemaInfos, initialized.getValue());
+            writeCodeToClass(schemaMigrationHistoryClassName, codeOfSchemaMigration);
 
-        // Write schema snapshot class.
-        String schemaSnapshotClassSimpleName = schemaSnapshotClassName.substring(schemaSnapshotClassName.lastIndexOf('.') + 1);
-        String codeOfSchemaSnapshot = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaSnapshotClassSimpleName, newTableSchemaInfos);
-        writeCodeToClass(schemaSnapshotClassSimpleName, codeOfSchemaSnapshot);
+            // Write schema snapshot class.
+            String schemaSnapshotClassSimpleName = schemaSnapshotClassName.substring(schemaSnapshotClassName.lastIndexOf('.') + 1);
+            String codeOfSchemaSnapshot = SnapshotCodeGenerator.generateSchemaSnapshot(schemaPackage, schemaSnapshotClassSimpleName, newTableSchemaInfos);
+            writeCodeToClass(schemaSnapshotClassSimpleName, codeOfSchemaSnapshot);
+        }
+        catch (Exception e)
+        {
+            getLog().error(e);
+            throw new RuntimeException(e);
+        }
     }
 
     private List<TableSchemaInfo> getOldTableSchemaInfos(OutValue<Boolean> initialized) throws MojoExecutionException
