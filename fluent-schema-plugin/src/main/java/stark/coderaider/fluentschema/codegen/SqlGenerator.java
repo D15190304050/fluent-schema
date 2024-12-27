@@ -69,7 +69,10 @@ public class SqlGenerator
         if (!initialized)
         {
             String initializationOfSnapshotHistory = getStringFromResourceFile(SNAPSHOT_HISTORY_SQL_FILE_NAME);
-            migrationSqlBuilder.append(initializationOfSnapshotHistory);
+            migrationSqlBuilder
+                .append(initializationOfSnapshotHistory)
+                .append(System.lineSeparator())
+                .append(System.lineSeparator());
         }
     }
 
