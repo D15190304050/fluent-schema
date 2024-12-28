@@ -29,7 +29,7 @@ import java.util.List;
 
 // Add @Execute(phase = LifecyclePhase.COMPILE) to make sure the project will be compiled before the execution of this goa.
 // Because this goal relies on the compiled .class files.
-@Mojo(name = "generate-schema", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "generate-schema", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, aggregator = true)
 @Execute(phase = LifecyclePhase.COMPILE)
 public class GenerateSchema extends GoalBase
 {
