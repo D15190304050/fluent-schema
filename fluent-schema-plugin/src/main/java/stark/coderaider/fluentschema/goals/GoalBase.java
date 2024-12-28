@@ -5,6 +5,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -16,28 +17,49 @@ public abstract class GoalBase extends AbstractMojo
 {
     public static final String SCHEMA_MIGRATION_CLASS_NAME_PREFIX = "SchemaMigration";
 
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    protected MavenProject project;
-
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     protected MavenSession session;
 
     @Parameter(property = "schemaPackage", required = true)
     protected String schemaPackage;
 
-    @Parameter(property = "dataSourceName")
-    protected String dataSourceName;
+    @Parameter(property = "domainModuleName")
+    private String domainModuleName;
 
+    @Parameter(property = "dataSourceConfigurationPrefix")
+    protected String dataSourceConfigurationPrefix;
+
+    protected MavenProject baseProject;
+    protected MavenProject domainModule;
     protected File sourceDirectory;
     protected File outputDirectory;
 
     protected void prepare() throws MojoExecutionException
     {
-        String sourceDirectoryPath = session.getCurrentProject().getBuild().getSourceDirectory();
+        baseProject = session.getCurrentProject();
+        domainModule = findDomainModule();
+
+        String sourceDirectoryPath = domainModule.getBuild().getSourceDirectory();
         sourceDirectory = new File(sourceDirectoryPath);
 
-        String outputDirectoryPath = session.getCurrentProject().getBuild().getOutputDirectory();
+        String outputDirectoryPath = domainModule.getBuild().getOutputDirectory();
         outputDirectory = new File(outputDirectoryPath);
+    }
+
+    private MavenProject findDomainModule() throws MojoExecutionException
+    {
+        if (!StringUtils.hasText(domainModuleName))
+            return baseProject;
+
+        List<MavenProject> subModules = baseProject.getCollectedProjects();
+
+        for (MavenProject subModule : subModules)
+        {
+            if (subModule.getArtifactId().equals(domainModuleName))
+                return subModule;
+        }
+
+        throw new MojoExecutionException("No such domain module: " + domainModuleName + ", please check your configuration.");
     }
 
     protected List<File> findClassesInPackage(String packageName)

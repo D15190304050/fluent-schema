@@ -2,13 +2,11 @@ package stark.coderaider.fluentschema.goals;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.io.File;
 import java.util.List;
 
 @Mojo(name = "apply-schema-change", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, aggregator = true)
@@ -21,8 +19,10 @@ public class ApplySchemaChange extends GoalBase
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
+        super.prepare();
+
         // 获取所有的子模块
-        List<MavenProject> subModules = project.getCollectedProjects();
+        List<MavenProject> subModules = baseProject.getCollectedProjects();
 
         // 遍历查找目标模块
         MavenProject targetModule = null;
