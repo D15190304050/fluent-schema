@@ -13,35 +13,10 @@ import java.util.List;
 //@Execute(phase = LifecyclePhase.COMPILE)
 public class ApplySchemaChange extends GoalBase
 {
-    @Parameter(property = "domainModuleName")
-    private String domainModuleName;
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.prepare();
-
-        // 获取所有的子模块
-        List<MavenProject> subModules = baseProject.getCollectedProjects();
-
-        // 遍历查找目标模块
-        MavenProject targetModule = null;
-        for (MavenProject subModule : subModules)
-        {
-            getLog().info("发现子模块: " + subModule.getArtifactId());
-
-            if (subModule.getArtifactId().equals(domainModuleName))
-            {
-                targetModule = subModule;
-            }
-        }
-
-        // 打印模块信息
-        if (targetModule != null)
-        {
-            getLog().info("找到目标模块: " + targetModule.getArtifactId());
-            getLog().info("模块路径: " + targetModule.getBasedir().getAbsolutePath());
-        }
 
         // 在目标模块目录下定位配置文件 application.yaml
 //        File yamlFile = new File(targetModule.getBasedir(), "src/main/resources/application.yaml");

@@ -52,7 +52,6 @@ public abstract class GoalBase extends AbstractMojo
             return baseProject;
 
         List<MavenProject> subModules = baseProject.getCollectedProjects();
-
         for (MavenProject subModule : subModules)
         {
             if (subModule.getArtifactId().equals(domainModuleName))
