@@ -6,6 +6,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class ApplySchemaChange extends GoalBase
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         super.prepare();
+
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
         // 在目标模块目录下定位配置文件 application.yaml
 //        File yamlFile = new File(targetModule.getBasedir(), "src/main/resources/application.yaml");

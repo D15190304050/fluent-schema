@@ -17,8 +17,8 @@ public abstract class GoalBase extends AbstractMojo
 {
     public static final String SCHEMA_MIGRATION_CLASS_NAME_PREFIX = "SchemaMigration";
 
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
-    protected MavenSession session;
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    protected MavenProject baseProject;
 
     @Parameter(property = "schemaPackage", required = true)
     protected String schemaPackage;
@@ -29,14 +29,13 @@ public abstract class GoalBase extends AbstractMojo
     @Parameter(property = "dataSourceConfigurationPrefix")
     protected String dataSourceConfigurationPrefix;
 
-    protected MavenProject baseProject;
+
     protected MavenProject domainModule;
     protected File sourceDirectory;
     protected File outputDirectory;
 
     protected void prepare() throws MojoExecutionException
     {
-        baseProject = session.getCurrentProject();
         domainModule = findDomainModule();
 
         String sourceDirectoryPath = domainModule.getBuild().getSourceDirectory();
