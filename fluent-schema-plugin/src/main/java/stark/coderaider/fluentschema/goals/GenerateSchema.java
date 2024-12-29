@@ -181,7 +181,7 @@ public class GenerateSchema extends GoalBase
     private void prepareSchemaSnapshotClassName()
     {
         getLog().info("Schema package: " + schemaPackage);
-        String dataSourceClassName = NamingConverter.toClassLikeName(dataSourceConfigurationPrefix);
+        String dataSourceClassName = NamingConverter.toClassLikeName(dataSourceName);
         schemaSnapshotClassName = schemaPackage + "." + dataSourceClassName + DEFAULT_SCHEMA_NAME;
     }
 

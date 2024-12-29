@@ -1,6 +1,5 @@
 package stark.coderaider.fluentschema.goals;
 
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -8,6 +7,7 @@ import org.apache.maven.project.MavenProject;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -26,45 +26,72 @@ public abstract class GoalBase extends AbstractMojo
     @Parameter(property = "domainModuleName")
     private String domainModuleName;
 
-    @Parameter(property = "dataSourceConfigurationPrefix")
-    protected String dataSourceConfigurationPrefix;
+    @Parameter(property = "dataSourceName")
+    protected String dataSourceName;
 
+    @Parameter(property = "mainModuleName")
+    private String mainModuleName;
 
+    protected MavenProject mainModule;
     protected MavenProject domainModule;
     protected File sourceDirectory;
     protected File outputDirectory;
+    protected URLClassLoader urlClassLoader;
 
-    protected void prepare() throws MojoExecutionException
+    protected void prepare() throws MojoExecutionException, MalformedURLException
     {
-        domainModule = findDomainModule();
+        prepareModules();
 
         String sourceDirectoryPath = domainModule.getBuild().getSourceDirectory();
         sourceDirectory = new File(sourceDirectoryPath);
 
         String outputDirectoryPath = domainModule.getBuild().getOutputDirectory();
         outputDirectory = new File(outputDirectoryPath);
+
+        initializeClassLoader();
     }
 
-    private MavenProject findDomainModule() throws MojoExecutionException
+    private void initializeClassLoader() throws MalformedURLException
     {
-        if (!StringUtils.hasText(domainModuleName))
+        ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+        urlClassLoader = new URLClassLoader(new URL[]{outputDirectory.toURI().toURL()}, currentClassLoader);
+        Thread.currentThread().setContextClassLoader(urlClassLoader);
+    }
+
+    private void prepareModules() throws MojoExecutionException
+    {
+        domainModule = findModuleByName(domainModuleName);
+        mainModule = findModuleByName(mainModuleName);
+    }
+
+    protected MavenProject findModuleByName(String moduleName) throws MojoExecutionException
+    {
+        if (!StringUtils.hasText(moduleName))
             return baseProject;
 
         List<MavenProject> subModules = baseProject.getCollectedProjects();
         for (MavenProject subModule : subModules)
         {
-            if (subModule.getArtifactId().equals(domainModuleName))
+            if (subModule.getArtifactId().equals(moduleName))
+            {
+                getLog().info("Found module: " + moduleName);
                 return subModule;
+            }
         }
 
-        throw new MojoExecutionException("No such domain module: " + domainModuleName + ", please check your configuration.");
+        throw new MojoExecutionException("No such module: " + moduleName + ", please check your configuration.");
     }
 
-    protected List<File> findClassesInPackage(String packageName)
+    protected List<File> findClassesInPackage(File sourceDirectory, String packageName)
     {
         List<File> javaFiles = new ArrayList<>();
         findClassesInPackage(sourceDirectory, packageName, javaFiles);
         return javaFiles;
+    }
+
+    protected List<File> findClassesInPackage(String packageName)
+    {
+        return findClassesInPackage(sourceDirectory, packageName);
     }
 
     private void findClassesInPackage(File dir, String packageName, List<File> results)
@@ -91,10 +118,6 @@ public abstract class GoalBase extends AbstractMojo
 
     protected List<Class<?>> loadCompiledClasses(List<File> javaFiles) throws Exception
     {
-        ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-        URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{outputDirectory.toURI().toURL()}, currentClassLoader);
-        Thread.currentThread().setContextClassLoader(urlClassLoader);
-
         getLog().info("Loaded classes:");
         List<Class<?>> loadedClasses = new ArrayList<>();
         for (File file : javaFiles)

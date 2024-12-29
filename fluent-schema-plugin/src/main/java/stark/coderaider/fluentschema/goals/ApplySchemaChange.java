@@ -2,31 +2,67 @@ package stark.coderaider.fluentschema.goals;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.sql.DataSource;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 
 @Mojo(name = "apply-schema-change", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, aggregator = true)
-//@Execute(phase = LifecyclePhase.COMPILE)
+@Execute(phase = LifecyclePhase.COMPILE)
 public class ApplySchemaChange extends GoalBase
 {
+    @Parameter(property = "mainClass")
+    private String mainClassName;
+
+    private Class<?> mainClass;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException
     {
-        super.prepare();
+        try
+        {
+            super.prepare();
+            initializeClassLoader();
+            loadMainClass();
 
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+//            ConfigurableApplicationContext applicationContext = SpringApplication.run(mainClass);
+//            DataSource dataSource = applicationContext.getBean("dataSource", DataSource.class);
+//            getLog().info("JDBC URL: " + dataSource.getConnection().getMetaData().getURL());
+        }
+        catch (Exception e)
+        {
+            getLog().error(e);
+            throw new RuntimeException(e);
+        }
+    }
 
-        // 在目标模块目录下定位配置文件 application.yaml
-//        File yamlFile = new File(targetModule.getBasedir(), "src/main/resources/application.yaml");
-//        if (!yamlFile.exists()) {
-//            throw new MojoExecutionException("配置文件不存在: " + yamlFile.getAbsolutePath());
-//        }
-//
-//        getLog().info("找到配置文件: " + yamlFile.getAbsolutePath());
+    private void initializeClassLoader() throws MalformedURLException
+    {
+        String mainModuleSourceDirectoryPath = mainModule.getBuild().getOutputDirectory();
+        File mainModuleSourceDirectory = new File(mainModuleSourceDirectoryPath);
+        urlClassLoader = new URLClassLoader(new URL[]{mainModuleSourceDirectory.toURI().toURL()}, urlClassLoader);
+        Thread.currentThread().setContextClassLoader(urlClassLoader);
+    }
+
+    private void loadMainClass() throws Exception
+    {
+        try
+        {
+            mainClass = urlClassLoader.loadClass(mainClassName);
+            getLog().info("Loaded main class " + mainClassName);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new MojoExecutionException("Unable to load main class " + mainClassName, e);
+        }
     }
 }
