@@ -16,6 +16,11 @@ import java.util.regex.Pattern;
 
 public abstract class SqlGoalBase extends GoalBase
 {
+    public static final String BEGINNING_OF_DELIMITER = "DELIMITER $$";
+    public static final String END_OF_DELIMITER = "DELIMITER ;";
+    public static final String END_OF_PROCEDURE_CREATION_WITH_DELIMITER = "END $$";
+    public static final String END_OF_PROCEDURE_CREATION = "END";
+
     public static final Pattern SCHEMA_MIGRATION_CLASS_NAME_PATTERN;
 
     static
@@ -61,5 +66,68 @@ public abstract class SqlGoalBase extends GoalBase
     {
         List<Class<?>> schemaMigrationClasses = loadSchemaMigrationClasses();
         return getForwardSql(schemaMigrationClasses);
+    }
+
+    protected List<String> splitCommands(String sql)
+    {
+        List<String> commandsToExecutePre = splitCommandsByDelimiter(sql);
+        return splitCommandsBySemicolon(commandsToExecutePre);
+    }
+
+    private static List<String> splitCommandsBySemicolon(List<String> commandsToExecutePre)
+    {
+        List<String> commandsToExecute = new ArrayList<>();
+        for (String cmd : commandsToExecutePre)
+        {
+            if (cmd.contains(BEGINNING_OF_DELIMITER))
+                commandsToExecute.add(cmd
+                    .replace(BEGINNING_OF_DELIMITER, "")
+                    .replace(END_OF_DELIMITER, "")
+                    .replace(END_OF_PROCEDURE_CREATION_WITH_DELIMITER, END_OF_PROCEDURE_CREATION)
+                );
+            else
+            {
+                String[] splitCommands = cmd.split(";");
+                for (String splitCommand : splitCommands)
+                {
+                    if (!splitCommand.isBlank())
+                        commandsToExecute.add(splitCommand);
+                }
+            }
+        }
+        return commandsToExecute;
+    }
+
+    private static List<String> splitCommandsByDelimiter(String sql)
+    {
+        List<String> commandsToExecutePre = new ArrayList<>();
+        int startIndex = 0;
+        while (startIndex < sql.length())
+        {
+            int indexOfDelimiterBegin = sql.indexOf(BEGINNING_OF_DELIMITER, startIndex);
+
+            // No more DELIMITER $$, take the remaining part of the string.
+            if (indexOfDelimiterBegin == -1)
+            {
+                commandsToExecutePre.add(sql.substring(startIndex));
+                break;
+            }
+
+            // Add everything before the DELIMITER $$ block.
+            if (indexOfDelimiterBegin > startIndex)
+                commandsToExecutePre.add(sql.substring(startIndex, indexOfDelimiterBegin));
+
+            int indexOfDelimiterEnd = sql.indexOf(END_OF_DELIMITER, indexOfDelimiterBegin);
+
+            if (indexOfDelimiterEnd == -1)
+            {
+                commandsToExecutePre.add(sql.substring(indexOfDelimiterBegin));
+                break;
+            }
+
+            commandsToExecutePre.add(sql.substring(indexOfDelimiterBegin, indexOfDelimiterEnd + END_OF_DELIMITER.length()));
+            startIndex = indexOfDelimiterEnd + END_OF_DELIMITER.length();
+        }
+        return commandsToExecutePre;
     }
 }
