@@ -29,10 +29,6 @@ public abstract class GoalBase extends AbstractMojo
     @Parameter(property = "dataSourceName")
     protected String dataSourceName;
 
-    @Parameter(property = "mainModuleName")
-    private String mainModuleName;
-
-    protected MavenProject mainModule;
     protected MavenProject domainModule;
     protected File sourceDirectory;
     protected File outputDirectory;
@@ -61,7 +57,6 @@ public abstract class GoalBase extends AbstractMojo
     private void prepareModules() throws MojoExecutionException
     {
         domainModule = findModuleByName(domainModuleName);
-        mainModule = findModuleByName(mainModuleName);
     }
 
     protected MavenProject findModuleByName(String moduleName) throws MojoExecutionException
