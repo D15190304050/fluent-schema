@@ -16,13 +16,13 @@ import java.util.Properties;
 @Execute(phase = LifecyclePhase.COMPILE)
 public class ApplySchemaChange extends SqlGoalBase
 {
-    @Parameter(property = "jdbcUrl")
+    @Parameter(property = "jdbcUrl", required = true)
     private String jdbcUrl;
 
-    @Parameter(property = "username")
+    @Parameter(property = "username", required = true)
     private String username;
 
-    @Parameter(property = "password")
+    @Parameter(property = "password", required = true)
     private String password;
 
     @Override
