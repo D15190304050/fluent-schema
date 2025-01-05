@@ -8,9 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Mojo(name = "generate-forward-sql", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, aggregator = true)
+@Mojo(name = "generate-backward-sql", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, aggregator = true)
 @Execute(phase = LifecyclePhase.COMPILE)
-public class GenerateForwardSql extends SqlGoalBase
+public class GenerateBackwardSql extends SqlGoalBase
 {
     @Override
     public void execute()
@@ -20,7 +20,7 @@ public class GenerateForwardSql extends SqlGoalBase
             super.prepare();
 
             getLog().info("sqlOutputFilePath = " + sqlOutputFilePath);
-            String forwardSql = generateForwardSql();
+            String forwardSql = generateBackwardSql(backwardCount);
             Files.writeString(Path.of(sqlOutputFilePath), forwardSql, StandardCharsets.UTF_8);
         }
         catch (Exception e)

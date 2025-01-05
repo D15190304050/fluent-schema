@@ -12,7 +12,8 @@ import java.util.List;
 public class SqlGenerator
 {
     public static final String SNAPSHOT_HISTORY_SQL_FILE_NAME = "schema_snapshot_history.sql";
-    public static final String MIGRATION_TEMPLATE_SQL_FILE_NAME = "MigrationTemplate.sql";
+    public static final String FORWARD_MIGRATION_TEMPLATE_SQL_FILE_NAME = "ForwardMigrationTemplate.sql";
+    public static final String BACKWARD_MIGRATION_TEMPLATE_SQL_FILE_NAME = "BackwardMigrationTemplate.sql";
 
     private final List<SchemaMigrationBase> schemaMigrations;
 
@@ -21,9 +22,9 @@ public class SqlGenerator
         this.schemaMigrations = schemaMigrations;
     }
 
-    public String generateMigrationSql() throws IOException, URISyntaxException
+    public String generateForwardMigrationSql() throws IOException, URISyntaxException
     {
-        String migrationTemplate = getMigrationTemplate();
+        String forwardMigrationTemplate = getStringFromResourceFile(FORWARD_MIGRATION_TEMPLATE_SQL_FILE_NAME);
         StringBuilder migrationSqlBuilder = new StringBuilder();
 
         for (SchemaMigrationBase schemaMigration : schemaMigrations)
@@ -35,30 +36,7 @@ public class SqlGenerator
             addInitializationOfSnapshotHistory(migrationSqlBuilder, schemaMigration.isInitialized());
 
             List<MigrationOperationBase> forwardOperations = schemaMigration.toForwardOperations();
-
-            if (!forwardOperations.isEmpty())
-            {
-                StringBuilder subMigrationSqlBuilder = new StringBuilder();
-                for (MigrationOperationBase forwardOperation : forwardOperations)
-                {
-                    subMigrationSqlBuilder
-                        .append(forwardOperation.toSql())
-                        .append(System.lineSeparator())
-                        .append(System.lineSeparator());
-                }
-
-                Class<? extends SchemaMigrationBase> migrationClass = schemaMigration.getClass();
-                String migrationClassName = migrationClass.getSimpleName();
-
-                String migrationCommand = migrationTemplate.replace("#{sp_alter_tables}", "sp_alter_tables_" + migrationClassName);
-                migrationCommand = migrationCommand.replace("#{schemaChanges}", subMigrationSqlBuilder);
-                migrationCommand = migrationCommand.replace("#{snapshotName}", migrationClassName);
-
-                migrationSqlBuilder
-                    .append(migrationCommand)
-                    .append(System.lineSeparator())
-                    .append(System.lineSeparator());
-            }
+            concatOperationSql(forwardMigrationTemplate, migrationSqlBuilder, schemaMigration, forwardOperations);
         }
 
         return migrationSqlBuilder.toString();
@@ -84,8 +62,47 @@ public class SqlGenerator
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    private String getMigrationTemplate() throws IOException, URISyntaxException
+    public String generateBackwardMigrationSql() throws IOException, URISyntaxException
     {
-        return getStringFromResourceFile(MIGRATION_TEMPLATE_SQL_FILE_NAME);
+        String backwardMigrationTemplate = getStringFromResourceFile(BACKWARD_MIGRATION_TEMPLATE_SQL_FILE_NAME);
+        StringBuilder migrationSqlBuilder = new StringBuilder();
+
+        for (SchemaMigrationBase schemaMigration : schemaMigrations)
+        {
+            schemaMigration.resetBackwardOperations();
+            schemaMigration.backward();
+
+            List<MigrationOperationBase> backwardOperations = schemaMigration.toBackwardOperations();
+            concatOperationSql(backwardMigrationTemplate, migrationSqlBuilder, schemaMigration, backwardOperations);
+        }
+
+        return migrationSqlBuilder.toString();
+    }
+
+    private void concatOperationSql(String migrationTemplate, StringBuilder migrationSqlBuilder, SchemaMigrationBase schemaMigration, List<MigrationOperationBase> operations)
+    {
+        if (!operations.isEmpty())
+        {
+            StringBuilder subMigrationSqlBuilder = new StringBuilder();
+            for (MigrationOperationBase backwardOperation : operations)
+            {
+                subMigrationSqlBuilder
+                    .append(backwardOperation.toSql())
+                    .append(System.lineSeparator())
+                    .append(System.lineSeparator());
+            }
+
+            Class<? extends SchemaMigrationBase> migrationClass = schemaMigration.getClass();
+            String migrationClassName = migrationClass.getSimpleName();
+
+            String migrationCommand = migrationTemplate.replace("#{sp_alter_tables}", "sp_alter_tables_" + migrationClassName);
+            migrationCommand = migrationCommand.replace("#{schemaChanges}", subMigrationSqlBuilder);
+            migrationCommand = migrationCommand.replace("#{snapshotName}", migrationClassName);
+
+            migrationSqlBuilder
+                .append(migrationCommand)
+                .append(System.lineSeparator())
+                .append(System.lineSeparator());
+        }
     }
 }

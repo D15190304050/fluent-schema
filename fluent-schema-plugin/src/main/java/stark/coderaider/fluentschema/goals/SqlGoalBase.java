@@ -1,6 +1,7 @@
 package stark.coderaider.fluentschema.goals;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import stark.coderaider.fluentschema.codegen.SqlGenerator;
 import stark.coderaider.fluentschema.commons.schemas.SchemaMigrationBase;
 
@@ -22,6 +23,12 @@ public abstract class SqlGoalBase extends GoalBase
     public static final String END_OF_PROCEDURE_CREATION = "END";
 
     public static final Pattern SCHEMA_MIGRATION_CLASS_NAME_PATTERN;
+
+    @Parameter(property = "sqlOutputFilePath", required = true)
+    protected String sqlOutputFilePath;
+
+    @Parameter(property = "backwardCount", defaultValue = "1")
+    protected int backwardCount;
 
     static
     {
@@ -47,25 +54,49 @@ public abstract class SqlGoalBase extends GoalBase
         return schemaMigrationClasses;
     }
 
-    protected String getForwardSql(List<Class<?>> schemaMigrationClasses) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, IOException, URISyntaxException
+    protected String generateForwardSql(List<Class<?>> schemaMigrationClasses) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, IOException, URISyntaxException
     {
         schemaMigrationClasses.sort(Comparator.comparing(Class::getSimpleName));
+        SqlGenerator sqlGenerator = getSchemaMigrations(schemaMigrationClasses);
+        return sqlGenerator.generateForwardMigrationSql();
+    }
+
+    protected String generateBackwardSql(List<Class<?>> schemaMigrationClasses, int count) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, IOException, URISyntaxException
+    {
+        // Sort by creation time descending.
+        List<Class<?>> migrationClassesToApply = schemaMigrationClasses
+            .stream()
+            .sorted((x, y) -> y.getSimpleName().compareTo(x.getSimpleName()))
+            .limit(count)
+            .toList();
+
+        SqlGenerator sqlGenerator = getSchemaMigrations(migrationClassesToApply);
+        return sqlGenerator.generateBackwardMigrationSql();
+    }
+
+    private SqlGenerator getSchemaMigrations(List<Class<?>> migrationClassesToApply) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException, URISyntaxException
+    {
         List<SchemaMigrationBase> schemaMigrations = new ArrayList<>();
-        for (Class<?> clazz : schemaMigrationClasses)
+        for (Class<?> clazz : migrationClassesToApply)
         {
             Constructor<?> constructor = clazz.getConstructor();
             SchemaMigrationBase schemaMigrationBase = (SchemaMigrationBase) constructor.newInstance();
             schemaMigrations.add(schemaMigrationBase);
         }
 
-        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations);
-        return sqlGenerator.generateMigrationSql();
+        return new SqlGenerator(schemaMigrations);
     }
 
     protected String generateForwardSql() throws MojoExecutionException, IOException, URISyntaxException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException
     {
         List<Class<?>> schemaMigrationClasses = loadSchemaMigrationClasses();
-        return getForwardSql(schemaMigrationClasses);
+        return generateForwardSql(schemaMigrationClasses);
+    }
+
+    protected String generateBackwardSql(int count) throws MojoExecutionException, IOException, URISyntaxException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException
+    {
+        List<Class<?>> schemaMigrationClasses = loadSchemaMigrationClasses();
+        return generateBackwardSql(schemaMigrationClasses, count);
     }
 
     protected List<String> splitCommands(String sql)
