@@ -6,9 +6,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 
 import java.util.List;
 
-@Mojo(name = "apply-schema-change", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, aggregator = true)
+@Mojo(name = "rollback-schema-change", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, aggregator = true)
 @Execute(phase = LifecyclePhase.COMPILE)
-public class ApplySchemaChange extends SqlGoalBase
+public class RollbackSchemaChange extends SqlGoalBase
 {
     @Override
     public void execute()
@@ -17,8 +17,8 @@ public class ApplySchemaChange extends SqlGoalBase
         {
             super.prepare();
 
-            String forwardSql = generateForwardSql();
-            List<String> commands = splitCommands(forwardSql);
+            String backwardSql = generateBackwardSql(backwardCount);
+            List<String> commands = splitCommands(backwardSql);
             executeCommands(commands);
         }
         catch (Exception e)

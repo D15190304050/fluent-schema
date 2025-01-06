@@ -1,5 +1,6 @@
 package stark.coderaider.fluentschema.goals;
 
+import com.mysql.cj.jdbc.Driver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import stark.coderaider.fluentschema.codegen.SqlGenerator;
@@ -9,9 +10,13 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +28,15 @@ public abstract class SqlGoalBase extends GoalBase
     public static final String END_OF_PROCEDURE_CREATION = "END";
 
     public static final Pattern SCHEMA_MIGRATION_CLASS_NAME_PATTERN;
+
+    @Parameter(property = "jdbcUrl", required = true)
+    protected String jdbcUrl;
+
+    @Parameter(property = "username", required = true)
+    protected String username;
+
+    @Parameter(property = "password", required = true)
+    protected String password;
 
     @Parameter(property = "sqlOutputFilePath", required = true)
     protected String sqlOutputFilePath;
@@ -160,5 +174,25 @@ public abstract class SqlGoalBase extends GoalBase
             startIndex = indexOfDelimiterEnd + END_OF_DELIMITER.length();
         }
         return commandsToExecutePre;
+    }
+
+    private Connection getConnection() throws SQLException
+    {
+        Properties props = new Properties();
+        props.setProperty("username", username);
+        props.setProperty("password", password);
+        Driver driver = new Driver();
+        return driver.connect(jdbcUrl, props);
+    }
+
+    protected void executeCommands(List<String> commands) throws SQLException
+    {
+        Connection connection = getConnection();
+        Statement statement = connection.createStatement();
+
+        for (String command : commands)
+            statement.execute(command);
+
+        connection.close();
     }
 }
