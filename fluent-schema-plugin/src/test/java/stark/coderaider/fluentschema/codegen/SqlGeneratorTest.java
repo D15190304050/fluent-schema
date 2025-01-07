@@ -12,13 +12,15 @@ import java.util.List;
 
 public class SqlGeneratorTest
 {
+    public static final String version = "1.0-SNAPSHOT";
+
     @Test
     public void testGenerateForwardMigrationSql1() throws IOException, URISyntaxException
     {
         EmptyMigration emptyMigration = new EmptyMigration();
         List<SchemaMigrationBase> schemaMigrations = List.of(emptyMigration);
 
-        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations);
+        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations, version);
         String sql = sqlGenerator.generateForwardMigrationSql();
 
         System.out.println(sql);
@@ -31,7 +33,7 @@ public class SqlGeneratorTest
         SchemaMigration06 schemaMigration = new SchemaMigration06();
         List<SchemaMigrationBase> schemaMigrations = List.of(emptyMigration, schemaMigration);
 
-        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations);
+        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations, version);
         String sql = sqlGenerator.generateForwardMigrationSql();
 
         System.out.println(sql);
@@ -44,7 +46,7 @@ public class SqlGeneratorTest
         SchemaMigration05 schemaMigration = new SchemaMigration05();
         List<SchemaMigrationBase> schemaMigrations = List.of(emptyMigration, schemaMigration);
 
-        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations);
+        SqlGenerator sqlGenerator = new SqlGenerator(schemaMigrations, version);
         String sql = sqlGenerator.generateForwardMigrationSql();
 
         System.out.println(sql);

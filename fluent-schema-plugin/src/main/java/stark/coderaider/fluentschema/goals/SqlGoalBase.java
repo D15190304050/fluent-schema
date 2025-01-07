@@ -98,7 +98,7 @@ public abstract class SqlGoalBase extends GoalBase
             schemaMigrations.add(schemaMigrationBase);
         }
 
-        return new SqlGenerator(schemaMigrations);
+        return new SqlGenerator(schemaMigrations, version);
     }
 
     protected String generateForwardSql() throws MojoExecutionException, IOException, URISyntaxException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException

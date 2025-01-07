@@ -7,14 +7,18 @@ import org.apache.maven.project.MavenProject;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public abstract class GoalBase extends AbstractMojo
 {
+    public static final String PLUGIN_HELP_FILE_PATH = "/META-INF/maven/stark.coderaider/fluent-schema-plugin/pom.properties";
     public static final String SCHEMA_MIGRATION_CLASS_NAME_PREFIX = "SchemaMigration";
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -33,9 +37,13 @@ public abstract class GoalBase extends AbstractMojo
     protected File sourceDirectory;
     protected File outputDirectory;
     protected URLClassLoader urlClassLoader;
+    protected String version;
 
     protected void prepare() throws MojoExecutionException, MalformedURLException
     {
+        version = getPluginVersion();
+        getLog().info("Version: " + version);
+
         prepareModules();
 
         String sourceDirectoryPath = domainModule.getBuild().getSourceDirectory();
@@ -45,6 +53,27 @@ public abstract class GoalBase extends AbstractMojo
         outputDirectory = new File(outputDirectoryPath);
 
         initializeClassLoader();
+    }
+
+    public String getPluginVersion()
+    {
+        Properties properties = new Properties();
+
+        try (InputStream is = getClass().getResourceAsStream(PLUGIN_HELP_FILE_PATH))
+        {
+            if (is != null)
+            {
+                properties.load(is);
+                return properties.getProperty("version", "unknown");
+            }
+        }
+        catch (IOException e)
+        {
+            getLog().error(e);
+            throw new RuntimeException(e);
+        }
+
+        return "unknown";
     }
 
     private void initializeClassLoader() throws MalformedURLException

@@ -16,10 +16,12 @@ public class SqlGenerator
     public static final String BACKWARD_MIGRATION_TEMPLATE_SQL_FILE_NAME = "BackwardMigrationTemplate.sql";
 
     private final List<SchemaMigrationBase> schemaMigrations;
+    private final String version;
 
-    public SqlGenerator(List<SchemaMigrationBase> schemaMigrations)
+    public SqlGenerator(List<SchemaMigrationBase> schemaMigrations, String version)
     {
         this.schemaMigrations = schemaMigrations;
+        this.version = version;
     }
 
     public String generateForwardMigrationSql() throws IOException, URISyntaxException
@@ -98,6 +100,7 @@ public class SqlGenerator
             String migrationCommand = migrationTemplate.replace("#{sp_alter_tables}", "sp_alter_tables_" + migrationClassName);
             migrationCommand = migrationCommand.replace("#{schemaChanges}", subMigrationSqlBuilder);
             migrationCommand = migrationCommand.replace("#{snapshotName}", migrationClassName);
+            migrationCommand = migrationCommand.replace("#{version}", version);
 
             migrationSqlBuilder
                 .append(migrationCommand)

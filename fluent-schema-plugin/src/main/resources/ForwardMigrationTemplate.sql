@@ -12,7 +12,7 @@ BEGIN
 
     SELECT COUNT(*) INTO recordExists
     FROM `schema_snapshot_history`
-    WHERE `schema_snapshot_history`.schema_snapshot_name = snapshot_name;
+    WHERE schema_snapshot_name = snapshot_name;
 
     -- Alter table structures here if there is no record of snapshot history.
     IF recordExists = 0 THEN
@@ -21,7 +21,7 @@ BEGIN
 
         -- schema_snapshot_history.
         INSERT INTO `schema_snapshot_history` (schema_snapshot_name, fluent_schema_version)
-        VALUES (snapshot_name, '8.0.33');
+        VALUES (snapshot_name, '#{version}');
 
     END IF;
 
