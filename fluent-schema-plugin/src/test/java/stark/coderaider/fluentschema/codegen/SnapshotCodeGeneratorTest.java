@@ -15,8 +15,7 @@ public class SnapshotCodeGeneratorTest
     @Test
     public void generateTableBuilderCode() throws MojoExecutionException
     {
-        EntityParser parser = new EntityParser();
-        TableSchemaInfo schemaInfoOfPerson = parser.parse(Person.class);
+        TableSchemaInfo schemaInfoOfPerson = EntityParser.parse(Person.class);
 
         StringBuilder tableSchemaInfoBuilder = new StringBuilder();
         SnapshotCodeGenerator.generateTableBuilderCode(tableSchemaInfoBuilder, schemaInfoOfPerson);
@@ -26,9 +25,8 @@ public class SnapshotCodeGeneratorTest
     @Test
     public void testGenerateSchemaSnapshot() throws MojoExecutionException, BadLocationException
     {
-        EntityParser parser = new EntityParser();
-        TableSchemaInfo schemaInfoOfPerson = parser.parse(Person.class);
-        TableSchemaInfo schemaInfoOfPerson2 = parser.parse(PersonWithCombinationKey.class);
+        TableSchemaInfo schemaInfoOfPerson = EntityParser.parse(Person.class);
+        TableSchemaInfo schemaInfoOfPerson2 = EntityParser.parse(PersonWithCombinationKey.class);
 
         String s = SnapshotCodeGenerator.generateSchemaSnapshot(
             "stark.coderaider.fluentschema.examples",

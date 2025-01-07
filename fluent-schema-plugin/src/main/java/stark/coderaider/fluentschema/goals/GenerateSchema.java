@@ -135,8 +135,7 @@ public class GenerateSchema extends GoalBase
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
         for (Class<?> entityClass : entityClasses)
         {
-            EntityParser parser = new EntityParser();
-            TableSchemaInfo tableSchemaInfo = parser.parse(entityClass);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(entityClass);
             newTableSchemaInfos.add(tableSchemaInfo);
         }
 

@@ -13,8 +13,7 @@ public class EntityParserTest
     @Test
     public void parse() throws MojoExecutionException
     {
-        EntityParser parser = new EntityParser();
-        TableSchemaInfo tableSchemaInfo = parser.parse(Person.class);
+        TableSchemaInfo tableSchemaInfo = EntityParser.parse(Person.class);
 
         System.out.println(JsonSerializer.serialize(tableSchemaInfo));
     }
@@ -22,11 +21,9 @@ public class EntityParserTest
     @Test
     public void parse2PrimaryKeys()
     {
-        EntityParser parser = new EntityParser();
-
         try
         {
-            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWith2PrimaryKeys.class);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(PersonWith2PrimaryKeys.class);
             System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
@@ -38,11 +35,9 @@ public class EntityParserTest
     @Test
     public void parse2AutoIncrements()
     {
-        EntityParser parser = new EntityParser();
-
         try
         {
-            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWith2AutoIncrements.class);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(PersonWith2AutoIncrements.class);
             System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
@@ -54,11 +49,9 @@ public class EntityParserTest
     @Test
     public void parseAutoIncrementOnErrorColumnType()
     {
-        EntityParser parser = new EntityParser();
-
         try
         {
-            TableSchemaInfo tableSchemaInfo = parser.parse(PersonAutoIncrementOnErrorColumnType.class);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(PersonAutoIncrementOnErrorColumnType.class);
             System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
@@ -70,11 +63,9 @@ public class EntityParserTest
     @Test
     public void parseAutoIncrementWithErrorColumnConstraint()
     {
-        EntityParser parser = new EntityParser();
-
         try
         {
-            TableSchemaInfo tableSchemaInfo = parser.parse(PersonAutoIncrementWithErrorColumnConstraint.class);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(PersonAutoIncrementWithErrorColumnConstraint.class);
             System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
@@ -86,11 +77,9 @@ public class EntityParserTest
     @Test
     public void parsePersonWith2Keys()
     {
-        EntityParser parser = new EntityParser();
-
         try
         {
-            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWith2Keys.class);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(PersonWith2Keys.class);
             System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
@@ -102,11 +91,9 @@ public class EntityParserTest
     @Test
     public void parsePersonWithCombinationKey()
     {
-        EntityParser parser = new EntityParser();
-
         try
         {
-            TableSchemaInfo tableSchemaInfo = parser.parse(PersonWithCombinationKey.class);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(PersonWithCombinationKey.class);
             System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)
@@ -118,11 +105,9 @@ public class EntityParserTest
     @Test
     public void parseSchemaSnapshotHistory()
     {
-        EntityParser parser = new EntityParser();
-
         try
         {
-            TableSchemaInfo tableSchemaInfo = parser.parse(SchemaSnapshotHistory.class);
+            TableSchemaInfo tableSchemaInfo = EntityParser.parse(SchemaSnapshotHistory.class);
             System.out.println(JsonSerializer.serialize(tableSchemaInfo));
         }
         catch (MojoExecutionException e)

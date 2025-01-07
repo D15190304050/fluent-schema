@@ -24,12 +24,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        newTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        newTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -45,14 +44,13 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        TableSchemaInfo schemaInfoOfPerson = entityParser.parse(Person.class);
+        TableSchemaInfo schemaInfoOfPerson = EntityParser.parse(Person.class);
         oldTableSchemaInfos.add(schemaInfoOfPerson);
         newTableSchemaInfos.add(schemaInfoOfPerson);
 
-        TableSchemaInfo schemaInfoOfPerson2 = entityParser.parse(PersonWithCombinationKey.class);
+        TableSchemaInfo schemaInfoOfPerson2 = EntityParser.parse(PersonWithCombinationKey.class);
         oldTableSchemaInfos.add(schemaInfoOfPerson2);
-        TableSchemaInfo schemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey.class);
+        TableSchemaInfo schemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey.class);
         schemaInfoOfPerson3.setName("PersonWithCombinationKey");
         newTableSchemaInfos.add(schemaInfoOfPerson3);
 
@@ -73,12 +71,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        TableSchemaInfo tableSchemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey.class);
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo tableSchemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey.class);
         tableSchemaInfoOfPerson3.setComment("Comment of PersonWithCombinationKey.");
         newTableSchemaInfos.add(tableSchemaInfoOfPerson3);
 
@@ -115,12 +112,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        TableSchemaInfo tableSchemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey.class);
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo tableSchemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey.class);
         tableSchemaInfoOfPerson3.setComment("Comment of PersonWithCombinationKey.");
         tableSchemaInfoOfPerson3.setEngine("MyISAM");
         newTableSchemaInfos.add(tableSchemaInfoOfPerson3);
@@ -158,11 +154,10 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        newTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
+        newTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -185,12 +180,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        newTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        newTableSchemaInfos.add(entityParser.parse(PersonWith2Keys.class));
+        newTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        newTableSchemaInfos.add(EntityParser.parse(PersonWith2Keys.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -213,11 +207,10 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -240,12 +233,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        oldTableSchemaInfos.add(entityParser.parse(PersonWith2Keys.class));
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWith2Keys.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -268,12 +260,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        newTableSchemaInfos.add(entityParser.parse(PersonWith2Keys.class));
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        newTableSchemaInfos.add(EntityParser.parse(PersonWith2Keys.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -296,15 +287,14 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        TableSchemaInfo schemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey.class);
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo schemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey.class);
         schemaInfoOfPerson3.setName("Person3");
         newTableSchemaInfos.add(schemaInfoOfPerson3);
-        newTableSchemaInfos.add(entityParser.parse(PersonWith2Keys.class));
+        newTableSchemaInfos.add(EntityParser.parse(PersonWith2Keys.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -327,12 +317,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        TableSchemaInfo schemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey.class);
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo schemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey.class);
         schemaInfoOfPerson3.getColumnMetadatas().add(ColumnMetadata.builder()
             .name("age")
             .type("INT")
@@ -373,12 +362,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        newTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey2.class));
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        newTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey2.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
@@ -439,12 +427,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        TableSchemaInfo tableSchemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey3.class);
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo tableSchemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey3.class);
         tableSchemaInfoOfPerson3.setComment("Comment of PersonWithCombinationKey.");
         tableSchemaInfoOfPerson3.setEngine("MyISAM");
 
@@ -483,12 +470,11 @@ public class CompareTableSchemaInfosTest
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
 
-        EntityParser entityParser = new EntityParser();
-        oldTableSchemaInfos.add(entityParser.parse(Person.class));
-        newTableSchemaInfos.add(entityParser.parse(Person.class));
+        oldTableSchemaInfos.add(EntityParser.parse(Person.class));
+        newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
-        oldTableSchemaInfos.add(entityParser.parse(PersonWithCombinationKey.class));
-        TableSchemaInfo tableSchemaInfoOfPerson3 = entityParser.parse(PersonWithCombinationKey4.class);
+        oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
+        TableSchemaInfo tableSchemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey4.class);
         newTableSchemaInfos.add(tableSchemaInfoOfPerson3);
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);

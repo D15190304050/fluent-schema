@@ -18,11 +18,9 @@ public class SchemaMigrationCodeGeneratorTest
     @Test
     public void testGenerateSchemaMigration1() throws MojoExecutionException, BadLocationException
     {
-        EntityParser parser1 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP1 = parser1.parse(P1.class);
+        TableSchemaInfo tableSchemaInfoOfP1 = EntityParser.parse(P1.class);
 
-        EntityParser parser2 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP2 = parser2.parse(P2.class);
+        TableSchemaInfo tableSchemaInfoOfP2 = EntityParser.parse(P2.class);
 
         String code = SchemaMigrationCodeGenerator.generateSchemaMigration(
             "stark.coderaider.fluentschema.examples",
@@ -38,35 +36,16 @@ public class SchemaMigrationCodeGeneratorTest
     @Test
     public void testGenerateSchemaMigration5() throws MojoExecutionException, BadLocationException
     {
-        EntityParser parser1 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP1 = parser1.parse(P1.class);
-
-        EntityParser parser2 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP2 = parser2.parse(P2.class);
-
-        EntityParser parser3 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP3 = parser3.parse(Student.class);
-
-        EntityParser parser4 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP4 = parser4.parse(Teacher.class);
-
-        EntityParser parser5 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP5 = parser5.parse(TDrop.class);
-
-        EntityParser parser6 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP6 = parser6.parse(TAdd.class);
-
-        EntityParser parser7 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP7 = parser7.parse(TBeforeRenameColumn.class);
-
-        EntityParser parser8 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP8 = parser8.parse(TAfterRenameColumn.class);
-
-        EntityParser parser9 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP9 = parser9.parse(TBeforeAlterColumn.class);
-
-        EntityParser parser10 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP10 = parser10.parse(TAfterAlterColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP1 = EntityParser.parse(P1.class);
+        TableSchemaInfo tableSchemaInfoOfP2 = EntityParser.parse(P2.class);
+        TableSchemaInfo tableSchemaInfoOfP3 = EntityParser.parse(Student.class);
+        TableSchemaInfo tableSchemaInfoOfP4 = EntityParser.parse(Teacher.class);
+        TableSchemaInfo tableSchemaInfoOfP5 = EntityParser.parse(TDrop.class);
+        TableSchemaInfo tableSchemaInfoOfP6 = EntityParser.parse(TAdd.class);
+        TableSchemaInfo tableSchemaInfoOfP7 = EntityParser.parse(TBeforeRenameColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP8 = EntityParser.parse(TAfterRenameColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP9 = EntityParser.parse(TBeforeAlterColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP10 = EntityParser.parse(TAfterAlterColumn.class);
 
         List<TableSchemaInfo> oldTableSchemaInfos = List.of(tableSchemaInfoOfP1, tableSchemaInfoOfP3, tableSchemaInfoOfP5, tableSchemaInfoOfP7, tableSchemaInfoOfP9);
         List<TableSchemaInfo> newTableSchemaInfos = List.of(tableSchemaInfoOfP2, tableSchemaInfoOfP4, tableSchemaInfoOfP6, tableSchemaInfoOfP8, tableSchemaInfoOfP10);
@@ -84,35 +63,16 @@ public class SchemaMigrationCodeGeneratorTest
     @Test
     public void testGenerateSchemaMigration6() throws MojoExecutionException, BadLocationException
     {
-        EntityParser parser1 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP1 = parser1.parse(P1.class);
-
-        EntityParser parser2 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP2 = parser2.parse(P2.class);
-
-        EntityParser parser3 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP3 = parser3.parse(Student.class);
-
-        EntityParser parser4 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP4 = parser4.parse(Teacher.class);
-
-        EntityParser parser5 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP5 = parser5.parse(TDrop.class);
-
-        EntityParser parser6 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP6 = parser6.parse(TAdd.class);
-
-        EntityParser parser7 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP7 = parser7.parse(TBeforeRenameColumn.class);
-
-        EntityParser parser8 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP8 = parser8.parse(TAfterRenameColumn.class);
-
-        EntityParser parser9 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP9 = parser9.parse(TBeforeAlterColumn.class);
-
-        EntityParser parser10 = new EntityParser();
-        TableSchemaInfo tableSchemaInfoOfP10 = parser10.parse(TAfterAlterColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP1 = EntityParser.parse(P1.class);
+        TableSchemaInfo tableSchemaInfoOfP2 = EntityParser.parse(P2.class);
+        TableSchemaInfo tableSchemaInfoOfP3 = EntityParser.parse(Student.class);
+        TableSchemaInfo tableSchemaInfoOfP4 = EntityParser.parse(Teacher.class);
+        TableSchemaInfo tableSchemaInfoOfP5 = EntityParser.parse(TDrop.class);
+        TableSchemaInfo tableSchemaInfoOfP6 = EntityParser.parse(TAdd.class);
+        TableSchemaInfo tableSchemaInfoOfP7 = EntityParser.parse(TBeforeRenameColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP8 = EntityParser.parse(TAfterRenameColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP9 = EntityParser.parse(TBeforeAlterColumn.class);
+        TableSchemaInfo tableSchemaInfoOfP10 = EntityParser.parse(TAfterAlterColumn.class);
 
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = List.of(tableSchemaInfoOfP2, tableSchemaInfoOfP4, tableSchemaInfoOfP6, tableSchemaInfoOfP8, tableSchemaInfoOfP10);
@@ -130,8 +90,7 @@ public class SchemaMigrationCodeGeneratorTest
     @Test
     public void testGenerateSchemaMigration7() throws MojoExecutionException, BadLocationException
     {
-        EntityParser parser = new EntityParser();
-        TableSchemaInfo tableSchemaInfo = parser.parse(SchemaSnapshotHistory.class);
+        TableSchemaInfo tableSchemaInfo = EntityParser.parse(SchemaSnapshotHistory.class);
 
         List<TableSchemaInfo> oldTableSchemaInfos = new ArrayList<>();
         List<TableSchemaInfo> newTableSchemaInfos = List.of(tableSchemaInfo);

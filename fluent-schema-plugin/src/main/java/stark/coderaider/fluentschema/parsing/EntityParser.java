@@ -1,5 +1,6 @@
 package stark.coderaider.fluentschema.parsing;
 
+import lombok.Getter;
 import org.apache.maven.plugin.MojoExecutionException;
 import stark.coderaider.fluentschema.commons.NamingConvention;
 import stark.coderaider.fluentschema.commons.NamingConverter;
@@ -61,16 +62,35 @@ public class EntityParser
         );
     }
 
-    public TableSchemaInfo parse(Class<?> entityClass) throws MojoExecutionException
+    private final Class<?> entityClass;
+    private final String entityClassName;
+    private final NamingConvention namingConvention;
+    private final String tableName;
+    private final TableMetadata tableMetadata;
+    private final Table table;
+
+    @Getter
+    private final TableSchemaInfo tableSchemaInfo;
+
+    public EntityParser(Class<?> entityClass) throws MojoExecutionException
     {
-        String entityClassName = entityClass.getName();
+        table = entityClass.getAnnotation(Table.class);
+        this.entityClass = entityClass;
+        entityClassName = entityClass.getName();
+        tableMetadata = toTableMetadata();
+        namingConvention = tableMetadata.getNamingConvention();
+        tableName = getTableName();
 
-        Table table = entityClass.getAnnotation(Table.class);
-        TableMetadata tableMetadata = toTableMetadata(entityClass, table);
+        tableSchemaInfo = parse();
+    }
 
-        NamingConvention namingConvention = tableMetadata.getNamingConvention();
-        String tableName = getTableName(entityClass, table, namingConvention);
+    public static TableSchemaInfo parse(Class<?> entityClass) throws MojoExecutionException
+    {
+        return new EntityParser(entityClass).getTableSchemaInfo();
+    }
 
+    private TableSchemaInfo parse() throws MojoExecutionException
+    {
         boolean isInnoDb = tableMetadata.getEngine().equals(INNODB);
         int varcharMaxLength = isInnoDb ? 32767 : 65535;
 
@@ -200,18 +220,18 @@ public class EntityParser
         tableSchemaInfo.setEngine(tableMetadata.getEngine());
         tableSchemaInfo.setColumnMetadatas(columnMetadatas);
         tableSchemaInfo.setPrimaryKeyMetadata(primaryKeyMetadata);
-        tableSchemaInfo.setKeyMetadatas(toKeyMetadatas(entityClass, keyMetadataMap));
+        tableSchemaInfo.setKeyMetadatas(toKeyMetadatas(keyMetadataMap));
         return tableSchemaInfo;
     }
 
-    private static List<KeyMetadata> toKeyMetadatas(Class<?> entityClass, HashMap<String, List<KeyBuilderInfo>> keyMetadataMap) throws MojoExecutionException
+    private List<KeyMetadata> toKeyMetadatas(HashMap<String, List<KeyBuilderInfo>> keyMetadataMap) throws MojoExecutionException
     {
         List<KeyMetadata> keyMetadatas = new ArrayList<>();
 
         for (String keyName : keyMetadataMap.keySet())
         {
             List<KeyBuilderInfo> keyBuilderInfos = keyMetadataMap.get(keyName);
-            validateKeyOrders(entityClass, keyBuilderInfos);
+            validateKeyOrders(keyBuilderInfos);
 
             keyBuilderInfos.sort(Comparator.comparingInt(KeyBuilderInfo::getOrder));
             List<String> columns = keyBuilderInfos.stream().map(x -> x.getColumn().getName()).toList();
@@ -227,7 +247,7 @@ public class EntityParser
         return keyMetadatas;
     }
 
-    private static void validateKeyOrders(Class<?> entityClass, List<KeyBuilderInfo> keyBuilderInfos) throws MojoExecutionException
+    private void validateKeyOrders(List<KeyBuilderInfo> keyBuilderInfos) throws MojoExecutionException
     {
         HashSet<Integer> keyIndexOrders = new HashSet<>();
 
@@ -310,7 +330,7 @@ public class EntityParser
         }
     }
 
-    private static String getTableName(Class<?> entityClass, Table table, NamingConvention namingConvention) throws MojoExecutionException
+    private String getTableName() throws MojoExecutionException
     {
         String tableName;
         if (table == null)
@@ -332,7 +352,7 @@ public class EntityParser
         return tableName;
     }
 
-    private static TableMetadata toTableMetadata(Class<?> entityClass, Table table)
+    private TableMetadata toTableMetadata()
     {
         TableMetadata tableMetadata = new TableMetadata();
 
