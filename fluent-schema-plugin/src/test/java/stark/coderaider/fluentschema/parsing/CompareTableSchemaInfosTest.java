@@ -474,8 +474,7 @@ public class CompareTableSchemaInfosTest
         newTableSchemaInfos.add(EntityParser.parse(Person.class));
 
         oldTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey.class));
-        TableSchemaInfo tableSchemaInfoOfPerson3 = EntityParser.parse(PersonWithCombinationKey4.class);
-        newTableSchemaInfos.add(tableSchemaInfoOfPerson3);
+        newTableSchemaInfos.add(EntityParser.parse(PersonWithCombinationKey4.class));
 
         TableSchemaDifference tableSchemaDifference = TableSchemaInfoComparator.compareTableSchemaInfos(newTableSchemaInfos, oldTableSchemaInfos);
         System.out.println(JsonSerializer.serialize(tableSchemaDifference));
