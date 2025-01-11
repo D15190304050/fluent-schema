@@ -27,8 +27,6 @@ public class EntityParser
     private final String tableName;
     private final TableMetadata tableMetadata;
     private final Table table;
-
-    @Getter
     private final TableSchemaInfo tableSchemaInfo;
     private final int varcharMaxLength;
 

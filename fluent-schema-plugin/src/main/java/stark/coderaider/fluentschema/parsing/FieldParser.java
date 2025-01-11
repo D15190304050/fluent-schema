@@ -75,12 +75,14 @@ public class FieldParser
     private final NamingConvention namingConvention;
     private final String entityClassName;
     private final int varcharMaxLength;
+    private final Column column;
 
     public FieldParser(Field field, EntityParser entityParser)
     {
         this.field = field;
         fieldType = field.getType();
         fieldName = field.getName();
+        column = field.getAnnotation(Column.class);
         fieldTypeName = fieldType.getName();
         namingConvention = entityParser.getNamingConvention();
         entityClassName = entityParser.getEntityClassName();
@@ -141,17 +143,16 @@ public class FieldParser
         boolean fieldTypeIsPrimitive = fieldType.isPrimitive();
         ColumnMetadata.ColumnMetadataBuilder columnMetadataBuilder = ColumnMetadata.builder();
 
-        Column column = field.getAnnotation(Column.class);
         if (column != null)
         {
             // Validate column name.
-            String columnName = getAndValidateColumnName(column);
+            String columnName = getAndValidateColumnName();
             columnMetadataBuilder.name(columnName);
 
-            String columnType = getAndValidateColumnType(column);
+            String columnType = getAndValidateColumnType();
             columnMetadataBuilder.type(columnType);
 
-            boolean nullable = getAndValidateColumnNullable(column, fieldTypeIsPrimitive, columnIsPrimaryKey, entityClassName);
+            boolean nullable = getAndValidateColumnNullable(fieldTypeIsPrimitive, columnIsPrimaryKey);
             columnMetadataBuilder.nullable(nullable);
 
             // Comment is a string, no validation is needed.
@@ -167,7 +168,7 @@ public class FieldParser
             String columnName = NamingConverter.applyConvention(fieldName, namingConvention);
             columnMetadataBuilder.name(columnName);
             columnMetadataBuilder.nullable(!fieldTypeIsPrimitive);
-            columnMetadataBuilder.type(getColumnTypeByFieldType(fieldTypeName, varcharMaxLength));
+            columnMetadataBuilder.type(getColumnTypeByFieldType());
         }
 
         return columnMetadataBuilder.build();
@@ -199,7 +200,7 @@ public class FieldParser
         return keyBuilderInfos;
     }
 
-    private String getAndValidateColumnName(Column column) throws MojoExecutionException
+    private String getAndValidateColumnName() throws MojoExecutionException
     {
         String columnName = column.name();
         if (columnName.isEmpty())
@@ -218,7 +219,7 @@ public class FieldParser
         }
     }
 
-    private static String getColumnTypeByFieldType(String fieldTypeName, int varcharMaxLength)
+    private String getColumnTypeByFieldType()
     {
         if (fieldTypeName.equals(STRING_TYPE))
             return "VARCHAR(" + varcharMaxLength + ")";
@@ -226,12 +227,12 @@ public class FieldParser
             return ACCEPTABLE_TYPE_MAP.get(fieldTypeName);
     }
 
-    private String getAndValidateColumnType(Column column) throws MojoExecutionException
+    private String getAndValidateColumnType() throws MojoExecutionException
     {
         String columnType = column.type();
 
         if (columnType.isEmpty())
-            columnType = getColumnTypeByFieldType(fieldTypeName, varcharMaxLength);
+            columnType = getColumnTypeByFieldType();
         else if (fieldTypeName.equals(STRING_TYPE))
         {
             Matcher matcher = VARCHAR_PATTERN.matcher(columnType);
@@ -260,7 +261,7 @@ public class FieldParser
         return columnType;
     }
 
-    private boolean getAndValidateColumnNullable(Column column, boolean fieldTypeIsPrimitive, boolean columnIsPrimaryKey, String entityClassName) throws MojoExecutionException
+    private boolean getAndValidateColumnNullable(boolean fieldTypeIsPrimitive, boolean columnIsPrimaryKey) throws MojoExecutionException
     {
         boolean nullable = column.nullable();
         if (nullable && fieldTypeIsPrimitive && !columnIsPrimaryKey)
