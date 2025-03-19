@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD, ElementType.TYPE})
 public @interface NotMapped
 {
 }

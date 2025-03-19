@@ -9,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 import stark.coderaider.fluentschema.codegen.SchemaMigrationCodeGenerator;
 import stark.coderaider.fluentschema.codegen.SnapshotCodeGenerator;
 import stark.coderaider.fluentschema.commons.NamingConverter;
+import stark.coderaider.fluentschema.commons.annotations.NotMapped;
 import stark.coderaider.fluentschema.commons.schemas.TableSchemaInfo;
 import stark.coderaider.fluentschema.parsing.EntityParser;
 import stark.dataworks.basic.data.json.JsonSerializer;
@@ -135,8 +136,12 @@ public class GenerateSchema extends GoalBase
         List<TableSchemaInfo> newTableSchemaInfos = new ArrayList<>();
         for (Class<?> entityClass : entityClasses)
         {
-            TableSchemaInfo tableSchemaInfo = EntityParser.parse(entityClass);
-            newTableSchemaInfos.add(tableSchemaInfo);
+            NotMapped notMapped = entityClass.getAnnotation(NotMapped.class);
+            if (notMapped == null)
+            {
+                TableSchemaInfo tableSchemaInfo = EntityParser.parse(entityClass);
+                newTableSchemaInfos.add(tableSchemaInfo);
+            }
         }
 
         return newTableSchemaInfos;

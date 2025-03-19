@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -176,16 +177,31 @@ public abstract class SqlGoalBase extends GoalBase
         return commandsToExecutePre;
     }
 
-    private Connection getConnection() throws SQLException
+    private Connection getConnection() throws SQLException, ClassNotFoundException
     {
-        Properties props = new Properties();
-        props.setProperty("username", username);
-        props.setProperty("password", password);
-        Driver driver = new Driver();
-        return driver.connect(jdbcUrl, props);
+//        Properties props = new Properties();
+//        props.setProperty("username", username);
+//        props.setProperty("password", password);
+//        Driver driver = new Driver();
+//        return driver.connect(jdbcUrl, props);
+
+        try
+        {
+            // 加载MySQL JDBC驱动
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // 建立连接
+            return DriverManager.getConnection(jdbcUrl, username, password);
+
+        }
+        catch (ClassNotFoundException | SQLException e)
+        {
+            getLog().error("Can't find MySQL driver \"com.mysql.cj.jdbc.Driver\"");
+            throw e;
+        }
     }
 
-    protected void executeCommands(List<String> commands) throws SQLException
+    protected void executeCommands(List<String> commands) throws SQLException, ClassNotFoundException
     {
         Connection connection = getConnection();
         Statement statement = connection.createStatement();

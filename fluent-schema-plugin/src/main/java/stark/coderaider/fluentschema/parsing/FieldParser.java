@@ -167,7 +167,7 @@ public class FieldParser
         {
             String columnName = NamingConverter.applyConvention(fieldName, namingConvention);
             columnMetadataBuilder.name(columnName);
-            columnMetadataBuilder.nullable(!fieldTypeIsPrimitive);
+            columnMetadataBuilder.nullable(!fieldTypeIsPrimitive && !columnIsPrimaryKey);
             columnMetadataBuilder.type(getColumnTypeByFieldType());
         }
 

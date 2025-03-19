@@ -33,4 +33,16 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>rdc-snapshots</id>
+            <name>rdc-snapshots</name>
+            <url>https://packages.aliyun.com/maven/repository/2230493-snapshot-dLtaP7/</url>
+        </snapshotRepository>
+        <repository>
+            <id>rdc-releases</id>
+            <name>rdc-releases</name>
+            <url>https://packages.aliyun.com/maven/repository/2230493-release-3OZLCz/</url>
+        </repository>
+    </distributionManagement>
 </project>
