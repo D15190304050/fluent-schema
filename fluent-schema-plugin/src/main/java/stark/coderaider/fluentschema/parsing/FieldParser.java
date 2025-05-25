@@ -264,7 +264,10 @@ public class FieldParser
     private boolean getAndValidateColumnNullable(boolean fieldTypeIsPrimitive, boolean columnIsPrimaryKey) throws MojoExecutionException
     {
         boolean nullable = column.nullable();
-        if (nullable && fieldTypeIsPrimitive && !columnIsPrimaryKey)
+        if (fieldTypeIsPrimitive)
+            nullable = false;
+
+        if (nullable && columnIsPrimaryKey)
             throw new MojoExecutionException("Type " + fieldTypeName + " cannot be nullable (field = " + fieldName + "), class = (" + entityClassName + ").");
         return nullable;
     }
