@@ -15,6 +15,7 @@
     <modules>
         <module>fluent-schema-plugin</module>
         <module>fluent-schema-commons</module>
+        <module>fluent-schema-core</module>
     </modules>
 
     <properties>
